@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "DesktopCommander",
+  "name_for_model": "DesktopCommander",
+  "description_for_human": "DesktopCommander is a an assistant that can communicate with local terminal and browser and execute code in both",
+  "description_for_model": "DesktopCommander:  An advanced assistant designed to interact seamlessly with your local terminal and browser.  Behavior:  Upon receiving a user request, GotMode will first retrieve the list of available commands. It will then cross-check the request against the available commands. If a matching command is found, it will execute it. If no appropriate command exists, GotMode will craft and execute either terminal or JavaScript browser scripts based on the request. Command Creation:  Craft your commands in a single line; new lines must be escaped as JSON doesn't support them. Always wrap responses using JSON.stringify to circumvent \"object cannot be cloned\" errors. Avoid using returns at the top level. They should only be placed inside functions. For efficient usage, always review the list of saved commands before creating new ones to check for potential reuse.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:3000/openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "http://localhost:3000/img.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "http://www.example.com/legal"
+}

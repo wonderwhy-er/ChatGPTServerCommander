@@ -1,0 +1,4 @@
+exports.lastCommand = {
+    type: '',
+    body: '',
+};

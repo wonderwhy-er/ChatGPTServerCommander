@@ -1,0 +1,19 @@
+{
+  "name": "servercommander",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "inquirer": "^8.0.0",
+    "localtunnel": "^2.0.2",
+    "swagger-autogen": "^2.23.7"
+  }
+}
