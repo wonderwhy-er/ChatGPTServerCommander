@@ -11,7 +11,7 @@
     "http"
   ],
   "paths": {
-    "/": {
+    "/log": {
       "get": {
         "description": "",
         "responses": {

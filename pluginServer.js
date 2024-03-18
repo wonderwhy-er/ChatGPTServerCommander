@@ -4,10 +4,29 @@ const http = require('http');
 const path = require('path');
 const {terminalHandler, interruptHandler} = require('./api/terminal');
 const commandHandler = require('./api/commandHandler');
+const socketSetup = require('./socketSetup');
 const localtunnel = require('localtunnel');
 const inquirer = require('inquirer');
 const crypto = require('crypto');
 const fs = require('fs');
+
+const swaggerJsdoc = require('swagger-jsdoc');
+
+const options = {
+    definition: {
+        openapi: '3.0.1', // OpenAPI spec version
+        info: {
+            title: 'Terminal for ChatGPT', // Title of your API
+            version: '1.0.0', // Version of your API
+        },
+    },
+    apis: ['./api/*.js'], // Path to your endpoint definitions
+};
+const openapiSpecification = swaggerJsdoc(options);
+openapiSpecification.components = {
+    "schemas": {}
+};
+console.log(openapiSpecification);
 
 const configFilePath = './config.json';
 let configPromise;
@@ -75,7 +94,6 @@ if (fs.existsSync(configFilePath)) {
     });
 }
 
-
 module.exports = async () => {
     log('start');
     const config = await configPromise;
@@ -84,12 +102,18 @@ module.exports = async () => {
     const server = http.createServer(expressApp);
     expressApp.use(express.json());
 
-    expressApp.get('/', (req, res) => {
+    socketSetup(server);
+    expressApp.get('/log', (req, res) => {
         res.set('Content-Type', 'text/html');
         res.send(_log.map(l => '</br>' + JSON.stringify(l)).join('\n'));
     });
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
+
+    expressApp.get('/openapi.json', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(openapiSpecification);
+    });
 
     expressApp.use((req, res, next) => {
         const bearerHeader = req.headers['authorization'];
@@ -107,7 +131,7 @@ module.exports = async () => {
             res.sendStatus(401); // Unauthorized
         }
     });
-
+    //
     expressApp.post('/api/runTerminalScript', terminalHandler);
     expressApp.post("/api/saveCommand", commandHandler.save);
     expressApp.get("/api/listCommands", commandHandler.list);
@@ -139,13 +163,16 @@ module.exports = async () => {
         console.error(err.stack); // Log error stack trace to server console
         res.status(500).send({ error: err.message, stack: err.stack });
     });
+
     expressApp.post("/api/interrupt", interruptHandler);
 
     server.listen(config.port, () => {
         log('Server running on http://localhost:' + config.port);
         if(config.useLocalTunnel) localtunnel({ port: config.port, subdomain: config.localTunnelSubdomain }).then(tunnel => {
             log('tunnel created at', tunnel.url);
-
+            openapiSpecification.servers = [{
+                url: tunnel.url,
+            }];
             tunnel.on('close', () => {
                 // tunnels are closed
             });

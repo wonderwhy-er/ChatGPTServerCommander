@@ -14,6 +14,8 @@
     "express": "^4.18.2",
     "inquirer": "^8.0.0",
     "localtunnel": "^2.0.2",
-    "swagger-autogen": "^2.23.7"
+    "socket.io": "^4.7.4",
+    "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8"
   }
 }

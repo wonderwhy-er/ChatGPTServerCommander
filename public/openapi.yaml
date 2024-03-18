@@ -1,6 +1,6 @@
 info:
-  description: ChatGPT plugin for local Gode Mode
-  title: ChatGPTGodeMode
+  description: Terminal API server for ChatGPT
+  title: ChatGPT local terminal
   version: v1
 openapi: 3.0.1
 paths:
