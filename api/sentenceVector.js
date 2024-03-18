@@ -27,4 +27,20 @@ async function getSentenceVectors(text) {
     return results;
 }
 
-module.exports = getSentenceVectors;
+async function handleSentenceVectors(req, res) {
+    const { text } = req.body;
+    if (!text) {
+        res.status(400).send({ error: "Text is required." });
+        return;
+    }
+
+    try {
+        const results = await getSentenceVectors(text);
+        log(results);
+        res.status(200).send(results);
+    } catch (error) {
+        res.status(500).send({ error: "Failed to process the request." });
+    }
+}
+
+module.exports = handleSentenceVectors;
