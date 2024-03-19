@@ -2,12 +2,12 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const {terminalHandler, interruptHandler} = require('./api/terminal');
-const commandHandler = require('./api/commandHandler');
+const {terminalHandler, interruptHandler} = require('../api/terminal');
+const commandHandler = require('../api/commandHandler');
 const socketSetup = require('./socketSetup');
 const localtunnel = require('localtunnel');
-const { configPromise } = require('./config/configHandler');
-const { openapiSpecification } = require('./serverModules/swaggerSetup');
+const { configPromise } = require('./configHandler');
+const { openapiSpecification } = require('./swaggerSetup');
 
 
 const _log = [];
@@ -41,7 +41,7 @@ module.exports = async () => {
     expressApp.put("/api/updateCommand/:id", commandHandler.update);
     expressApp.delete("/api/removeCommand/:id", commandHandler.remove);
 
-    expressApp.post("/api/getSentenceVectors", require("./api/sentenceVector.js"));
+    expressApp.post("/api/getSentenceVectors", require("../api/sentenceVector.js"));
 
     // Add the new route for the interrupt endpoint
     // General error handling middleware

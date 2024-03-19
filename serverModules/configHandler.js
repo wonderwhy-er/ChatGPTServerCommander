@@ -3,7 +3,7 @@ const fs = require('fs');
 const inquirer = require('inquirer');
 const crypto = require('crypto');
 
-const configFilePath = './config/config.json';
+const configFilePath = './config.json';
 let configPromise;
 
 // Check if config file exists

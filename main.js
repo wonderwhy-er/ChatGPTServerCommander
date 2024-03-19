@@ -1,3 +1,3 @@
-const startServer = require('./pluginServer.js');
+const startServer = require('./serverModules/pluginServer.js');
 
 startServer();

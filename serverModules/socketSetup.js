@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 
 module.exports = function (server) {
     const io = socketIo(server);
-    const filePath = path.join(__dirname, 'public', 'index.html');
+    const filePath = path.join(__dirname, '..', 'public', 'index.html');
 
     fs.watch(filePath, (eventType, filename) => {
         if (eventType === 'change') {
