@@ -32,7 +32,7 @@ module.exports = async () => {
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
 
-    expressApp.use(require('./auth.js'));
+    expressApp.use(require('./auth.js')(log, config));
     //
     expressApp.post('/api/runTerminalScript', terminalHandler);
     expressApp.post("/api/saveCommand", commandHandler.save);

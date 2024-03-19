@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+module.exports = (log, config) => ((req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     log('request auth check', req.path, Object.keys(req.headers));
     if (typeof bearerHeader !== 'undefined') {
@@ -13,4 +13,4 @@ module.exports = (req, res, next) => {
     } else {
         res.sendStatus(401); // Unauthorized
     }
-}
+});
