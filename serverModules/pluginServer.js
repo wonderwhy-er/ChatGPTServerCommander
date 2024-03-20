@@ -2,12 +2,12 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const { searchInFileHandler } = require('../api/searchInFiles');
 const {terminalHandler, interruptHandler} = require('../api/terminal');
-const commandHandler = require('../api/commandHandler');
 const socketSetup = require('./socketSetup');
 const localtunnel = require('localtunnel');
 const { configPromise } = require('./configHandler');
-const { openapiSpecification } = require('./swaggerSetup');
+const { openapiSpecification, setURL } = require('./swaggerSetup');
 
 
 const _log = [];
@@ -32,15 +32,11 @@ module.exports = async () => {
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
 
+    openapiSpecification(expressApp);
     expressApp.use(require('./auth.js')(log, config));
     //
     expressApp.post('/api/runTerminalScript', terminalHandler);
-    expressApp.post("/api/saveCommand", commandHandler.save);
-    expressApp.get("/api/listCommands", commandHandler.list);
-    expressApp.get("/api/printCommand/:id", commandHandler.print);
-    expressApp.put("/api/updateCommand/:id", commandHandler.update);
-    expressApp.delete("/api/removeCommand/:id", commandHandler.remove);
-
+    expressApp.post('/api/searchInFile', searchInFileHandler);
     expressApp.post("/api/getSentenceVectors", require("../api/sentenceVector.js"));
 
     // Add the new route for the interrupt endpoint
@@ -56,9 +52,7 @@ module.exports = async () => {
         log('Server running on http://localhost:' + config.port);
         if(config.useLocalTunnel) localtunnel({ port: config.port, subdomain: config.localTunnelSubdomain }).then(tunnel => {
             log('tunnel created at', tunnel.url);
-            openapiSpecification.servers = [{
-                url: tunnel.url,
-            }];
+            setURL(tunnel.url);
             tunnel.on('close', () => {
                 // tunnels are closed
             });

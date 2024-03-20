@@ -19,7 +19,13 @@ openapiSpecification.components = {
 console.log(openapiSpecification);
 
 module.exports = {
-    openapiSpecification: expressApp => {
+    setURL: (url) => {
+        openapiSpecification.servers = [{
+            url: url,
+        }];
+    },
+    openapiSpecification: (expressApp, url) => {
+
         expressApp.get('/openapi.json', (req, res) => {
             res.setHeader('Content-Type', 'application/json');
             res.send(openapiSpecification);

@@ -1,4 +1,0 @@
-exports.lastCommand = {
-    type: '',
-    body: '',
-};

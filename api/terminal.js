@@ -1,4 +1,3 @@
-const {lastCommand} = require("./lastCommand");
 const { spawn } = require('child_process');
 
 // Create a persistent shell
@@ -88,8 +87,6 @@ function terminalHandler(req, res) {
         shell.stderr.on('data', getError);
 
         function processOutput(output) {
-            lastCommand.type = 'terminal';
-            lastCommand.body = req.body;
             console.log(`Command executed successfully. Output: ${output}`);
             shell.stdout.removeListener('data', getOutput);
             shell.stderr.removeListener('data', getError);
