@@ -1,0 +1,6 @@
+{
+    "port": 3000,
+    "useLocalTunnel": true,
+    "localTunnelSubdomain": "chatgpt-server-commander",
+    "authToken": "0e3a69ffbd7443dab194cfea3babd3e3"
+}

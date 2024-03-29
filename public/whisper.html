@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello ChatGPT</title>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='socketSetup.js'></script>
+</head>
+<body>
+    <h1>Audio Transcription with Whisper</h1>
+    <input type='file' id='audioInput' accept='audio/*'>
+    <button id='transcribeButton'>Transcribe</button>
+    <p id='transcriptionResult'></p>
+    <script type='module'>
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.16.0';
+        env.allowLocalModels = false;
+        const worker = new Worker('./whisperWorker.js', { type: 'module' });
+        worker.onmessage = (event) => {
+            document.getElementById('transcriptionResult').textContent = event.data.transcription;
+        };
+
+        document.getElementById('transcribeButton').addEventListener('click', () => {
+            const audioInput = document.getElementById('audioInput');
+            const audioFile = audioInput.files[0];
+            if (audioFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioContext.decodeAudioData(e.target.result, function(buffer) {
+                        // Get the audio buffer data
+                        const audioData = buffer.getChannelData(0); // Assuming mono audio; use both channels for stereo
+                        worker.postMessage({
+                            audioData: audioData, // This is a Float32Array
+                            model: 'Xenova/whisper-tiny', // Adjust according to your needs
+                            multilingual: false, // Adjust according to your needs
+                            quantized: false, // Adjust according to your needs
+                            subtask: 'transcribe', // Adjust according to your needs
+                            language: 'en', // Adjust according to your needs
+                        });
+                    }, function(e){
+                        console.log("Error with decoding audio data" + e.err);
+                    });
+                };
+                reader.readAsArrayBuffer(audioFile);
+            } else {
+                alert('Please select an audio file.');
+            }
+        });
+
+    </script>
+</body>
+</html>
+

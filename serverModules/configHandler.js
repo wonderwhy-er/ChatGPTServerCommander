@@ -38,7 +38,13 @@ if (fs.existsSync(configFilePath)) {
             message: 'Enter the preferred subdomain name for Local Tunnel:',
             when: answers => answers.useLocalTunnel,
             validate: input => input !== '' || 'Subdomain name cannot be empty'
-        }
+        },
+        {
+            name: 'firebaseAccountKey',
+            type: 'input',
+            message: 'Enter the firebase admin account key:',
+            validate: input => input !== '' || 'Firebase admin key cannot be empty'
+        },
     ]).then(answers => {
         // Generate authorization token
         const authToken = crypto.randomBytes(16).toString('hex');
