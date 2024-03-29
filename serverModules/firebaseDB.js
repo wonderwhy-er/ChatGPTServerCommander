@@ -26,8 +26,8 @@ const createAppInFirestore = async (appData) => {
 };
 
 function generatePrivateId() {
-  // Implement the logic to generate a unique public ID
-  return 'some-unique-string';
+  // Returns a randomly generated private ID for app identification
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 module.exports = {
