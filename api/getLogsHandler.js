@@ -1,3 +1,5 @@
+const {getLog} = require("../serverModules/logger");
+
 /**
  * @openapi
  * /api/logs:
@@ -16,7 +18,6 @@
  *                 type: string
  *               description: Server logs
  */
-
-module.exports = (getLog) => (req, res) => {
+module.exports = (req, res) => {
     res.json({ logs: getLog() });
 };

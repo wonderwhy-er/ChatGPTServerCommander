@@ -1,21 +1,12 @@
-// Express server setup
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const {terminalHandler, interruptHandler} = require('../api/terminal');
 const socketSetup = require('./socketSetup');
-const localtunnel = require('localtunnel');
 const { configPromise } = require('./configHandler');
 const { openapiSpecification, setURL } = require('./swaggerSetup');
-const {createAppHandler} = require("../api/firebase");
-const {initDB} = require("./firebaseDB");
 const {addApi} = require("./apiRoutes");
-
-const _log = [];
-function log(...args) {
-    console.log(...args);
-    _log.push(args);
-}
+const {log} = require("./logger");
+const {initTunnel} = require("./setupTunnel");
 
 module.exports = async () => {
     log('start');
@@ -36,8 +27,9 @@ module.exports = async () => {
     openapiSpecification(expressApp);
     expressApp.use(require('./auth.js')(log, config));
 
-    let url = '';
-    addApi(expressApp, config, () => url, () => _log);
+    let serverUrl = '';
+    let activeTunnel;
+    addApi(expressApp, config, () => serverUrl, () => activeTunnel && activeTunnel.close());
 
     expressApp.use((err, req, res, next) => {
         console.error(err.stack); // Log error stack trace to server console
@@ -46,16 +38,13 @@ module.exports = async () => {
 
     server.listen(config.port, () => {
         log('Server running on http://localhost:' + config.port);
-        if(config.useLocalTunnel) localtunnel({ port: config.port, subdomain: config.localTunnelSubdomain }).then(tunnel => {
-            log('tunnel created at', tunnel.url);
-            setURL(tunnel.url);
-            url = `${tunnel.url}/log`;
-            tunnel.on('close', () => {
-                // tunnels are closed
-            });
-        });
-        // the assigned public url for your tunnel
-        // i.e. https://abcdefgjhij.localtunnel.me
+        if (config.useLocalTunnel) {
+            initTunnel(config).then(({url, tunnel,}) => {
+                    activeTunnel = tunnel;
+                    serverUrl = url;
+                }
+            );
+        }
     });
     return server;
 };

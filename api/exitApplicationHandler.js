@@ -22,10 +22,11 @@
  *                   type: string
  *                   description: A message indicating that the application is restarting.
  */
-const exitApplicationHandler = (req, res) => {
+const exitApplicationHandler = (close) => (req, res) => {
   console.log('Exit request received. Shutting down.');
   res.json({ message: 'Exiting application...' });
-  setTimeout(() => process.exit(), 100);
+  setTimeout(() => close(), 100);
+  setTimeout(() => process.exit(), 500);
 };
 
 module.exports = exitApplicationHandler;
