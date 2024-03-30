@@ -9,7 +9,7 @@ const { configPromise } = require('./configHandler');
 const { openapiSpecification, setURL } = require('./swaggerSetup');
 const {createAppHandler} = require("../api/firebase");
 const {initDB} = require("./firebaseDB");
-
+const {addApi} = require("./apiRoutes");
 
 const _log = [];
 function log(...args) {
@@ -35,29 +35,21 @@ module.exports = async () => {
 
     openapiSpecification(expressApp);
     expressApp.use(require('./auth.js')(log, config));
-    //
-    expressApp.post('/api/runTerminalScript', terminalHandler);
 
-// Add this inside the module.exports function where other routes are being set up
-    if(config.firebaseAccountKey) {
-        initDB(config.firebaseAccountKey);
-        expressApp.post('/api/apps', createAppHandler);
-    }
+    let url = '';
+    addApi(expressApp, config, () => url, () => _log);
 
-    // Add the new route for the interrupt endpoint
-    // General error handling middleware
     expressApp.use((err, req, res, next) => {
         console.error(err.stack); // Log error stack trace to server console
         res.status(500).send({ error: err.message, stack: err.stack });
     });
-
-    expressApp.post("/api/interrupt", interruptHandler);
 
     server.listen(config.port, () => {
         log('Server running on http://localhost:' + config.port);
         if(config.useLocalTunnel) localtunnel({ port: config.port, subdomain: config.localTunnelSubdomain }).then(tunnel => {
             log('tunnel created at', tunnel.url);
             setURL(tunnel.url);
+            url = `${tunnel.url}/log`;
             tunnel.on('close', () => {
                 // tunnels are closed
             });
