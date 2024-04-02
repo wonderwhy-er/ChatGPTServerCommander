@@ -16,8 +16,8 @@ module.exports = async () => {
     const server = http.createServer(expressApp);
     expressApp.use(express.json());
 
-
-    expressApp.use(express.static(path.join(__dirname, 'public')));
+    log('serving static from', path.join(__dirname, '..', 'public'));
+    expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
     openapiSpecification(expressApp);
     expressApp.use(require('./auth.js')(log, config));
@@ -25,11 +25,6 @@ module.exports = async () => {
     let serverUrl = '';
     let activeTunnel;
     addApi(expressApp, config, () => serverUrl, () => activeTunnel && activeTunnel.close());
-
-    expressApp.get('/log', (req, res) => {
-        res.set('Content-Type', 'text/html');
-        res.send(getLog().map(l => '</br>' + JSON.stringify(l)).join('\n'));
-    });
 
     expressApp.use((err, req, res, next) => {
         console.error(err.stack); // Log error stack trace to server console
