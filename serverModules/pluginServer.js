@@ -5,7 +5,7 @@ const socketSetup = require('./socketSetup');
 const { configPromise } = require('./configHandler');
 const { openapiSpecification, setURL } = require('./swaggerSetup');
 const {addApi} = require("./apiRoutes");
-const {log} = require("./logger");
+const {log, getLog} = require("./logger");
 const {initTunnel} = require("./setupTunnel");
 
 module.exports = async () => {
@@ -16,11 +16,6 @@ module.exports = async () => {
     const server = http.createServer(expressApp);
     expressApp.use(express.json());
 
-    socketSetup(server);
-    expressApp.get('/log', (req, res) => {
-        res.set('Content-Type', 'text/html');
-        res.send(_log.map(l => '</br>' + JSON.stringify(l)).join('\n'));
-    });
 
     expressApp.use(express.static(path.join(__dirname, 'public')));
 
@@ -30,6 +25,11 @@ module.exports = async () => {
     let serverUrl = '';
     let activeTunnel;
     addApi(expressApp, config, () => serverUrl, () => activeTunnel && activeTunnel.close());
+
+    expressApp.get('/log', (req, res) => {
+        res.set('Content-Type', 'text/html');
+        res.send(getLog().map(l => '</br>' + JSON.stringify(l)).join('\n'));
+    });
 
     expressApp.use((err, req, res, next) => {
         console.error(err.stack); // Log error stack trace to server console

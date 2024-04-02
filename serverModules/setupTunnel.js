@@ -7,8 +7,9 @@ const setTimeoutPromise = util.promisify(setTimeout);
 async function setupTunnelWithRetries(config, maxRetries = 3) {
     let retries = 0;
     while (retries < maxRetries) {
+        log('Try number ', retries);
         const tunnel = await localtunnel({ port: config.port, subdomain: config.localTunnelSubdomain });
-
+        log('Tunnel created ', tunnel.url);
         if (tunnel.url.includes(config.localTunnelSubdomain)) {
             return tunnel; // Success, return the tunnel instance
         } else {
@@ -23,6 +24,7 @@ async function setupTunnelWithRetries(config, maxRetries = 3) {
 
 module.exports = {
     initTunnel: (config) => {
+        log('Starting tunnel setup');
         return setupTunnelWithRetries(config).then(tunnel => {
             log('Tunnel created at', tunnel.url);
             setURL(tunnel.url);

@@ -1,4 +1,6 @@
 const fs = require('fs');
+const { checkJavaScriptFile } = require('../serverModules/checkjs');
+const {stringifyError} = require("../serverModules/stringifyError"); // Adjust the path as needed
 
 
 /**
@@ -7,7 +9,7 @@ const fs = require('fs');
  * @param {Array<{start: number, end: number}>} lineRangesToRemove - Line ranges to remove.
  * @param {Array<{line: number, content: string[]}>} additions - Lines to add and their positions.
  */
-const editFile = async (filePath, lineRangesToRemove, additions) => {
+const editFile = async (filePath, lineRangesToRemove = [], additions = []) => {
     let fileContent = await fs.promises.readFile(filePath, 'utf8');
     let lines = fileContent.split('\n');
 
@@ -68,23 +70,40 @@ const editFile = async (filePath, lineRangesToRemove, additions) => {
  *                 description: Array of lines to add and their respective positions
  *     responses:
  *       200:
- *         description: File edited successfully with updated content returned
+ *         description: File edited successfully with updated content returned for review
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
  *               description: The updated file content
+*        400:
+ *          description: Errors encountered after editing file
+ *        content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               description: schema containing issues and updated file content
  */
 const editFileHandler = async (req, res) => {
     const { filePath, lineRangesToRemove, additions } = req.body;
     try {
-        const updatedContent = await editFile(filePath, lineRangesToRemove, additions);
+        let updatedContent = await editFile(filePath, lineRangesToRemove, additions);
+        updatedContent = updatedContent.split('\n').map((line, index) => {
+            return `${index}: ${line}`;
+        }).join('\n');
+        let issues = [];
+        if (filePath.endsWith('.js')) {
+            issues = await checkJavaScriptFile(filePath);
+            if (issues.length > 0) {
+                res.status(400).json({ message: 'Issues found in the file:', issues, updatedContent });
+                return;
+            }
+        }
         res.type('text/plain').send(updatedContent);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'An error occurred while editing the file.' });
+        res.status(500).json({ message: `An error occurred while editing the file: ${stringifyError(error)}` });
     }
 };
 
 module.exports = editFileHandler;
-
