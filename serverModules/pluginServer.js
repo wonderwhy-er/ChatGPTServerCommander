@@ -7,9 +7,11 @@ const { openapiSpecification, setURL } = require('./swaggerSetup');
 const {addApi} = require("./apiRoutes");
 const {log, getLog} = require("./logger");
 const {initTunnel} = require("./setupTunnel");
+const {initDB} = require("./firebaseDB");
 
 module.exports = async () => {
     log('start');
+    initDB();
     const config = await configPromise;
     log('got config', config);
     const expressApp = express();
