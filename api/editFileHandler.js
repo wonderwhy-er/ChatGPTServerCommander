@@ -11,19 +11,25 @@ const {stringifyError} = require("../serverModules/stringifyError"); // Adjust t
  */
 const editFile = async (filePath, lineRangesToRemove = [], additions = []) => {
     let fileContent = await fs.promises.readFile(filePath, 'utf8');
-    let lines = fileContent.split('\n');
+    if (lineRangesToRemove.length > 0 || additions.length > 0) {
+        // Create a backup of the original file with a timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupFilePath = `${filePath}.backup-${timestamp}`;
+        await fs.promises.writeFile(backupFilePath, fileContent);
 
-    // Remove specified line ranges
-    lineRangesToRemove.forEach(range => {
-        lines = [...lines.slice(0, range.start - 1), ...lines.slice(range.end)];
-    });
-
-    // Add new lines
-    additions.forEach(addition => {
-        lines.splice(addition.line - 1, 0, ...addition.content);
-    });
-
-    await fs.promises.writeFile(filePath, lines.join('\n'));
+        let lines = fileContent.split('\n');
+        // Remove specified line ranges
+        lineRangesToRemove.forEach(range => {
+            lines = [...lines.slice(0, range.start - 1), ...lines.slice(range.end)];
+        });
+        // Add new lines
+        additions.forEach(addition => {
+            lines.splice(addition.line - 1, 0, ...addition.content);
+        });
+        await fs.promises.writeFile(filePath, lines.join('\n'));
+    } else {
+        return fileContent;
+    }
 
     // Re-read the file content to return it
     return fs.promises.readFile(filePath, 'utf8');
@@ -89,17 +95,17 @@ const editFileHandler = async (req, res) => {
     try {
         let updatedContent = await editFile(filePath, lineRangesToRemove, additions);
         updatedContent = updatedContent.split('\n').map((line, index) => {
-            return `${index}: ${line}`;
+            return `${index + 1}: ${line}`;
         }).join('\n');
         let issues = [];
         if (filePath.endsWith('.js')) {
             issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
-                res.status(400).json({ message: 'Issues found in the file:', issues, updatedContent });
+                res.status(400).send('Issues found in the file: \n' + JSON.stringify(issues) + '\n File content with line numbers: ' + updatedContent);
                 return;
             }
         }
-        res.type('text/plain').send(updatedContent);
+        res.type('text/plain').send(`File content with line numbers${lineRangesToRemove || additions ? ". Check if changes look correct" : ""}: \n` + updatedContent);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: `An error occurred while editing the file: ${stringifyError(error)}` });
