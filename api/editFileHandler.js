@@ -31,11 +31,11 @@ const editFile = async (filePath, lineRangesToRemove = [], additions = []) => {
 
 /**
  * @openapi
- * /api/edit-file:
+ * /api/edit-or-read-file:
  *   post:
- *     summary: Edit a file and return updated content
- *     description: Takes a file path, line ranges to remove, and lines to add, performs the edits, and returns the updated file content.
- *     operationId: editFile
+ *     summary: Edit or read a file and get its content with line numbers
+ *     description: Takes a file path, optional line ranges to remove, and optional lines to add, performs the edits, and returns the file content with line numbers
+ *     operationId: editOrReadFile
  *     requestBody:
  *       required: true
  *       content:
@@ -70,19 +70,19 @@ const editFile = async (filePath, lineRangesToRemove = [], additions = []) => {
  *                 description: Array of lines to add and their respective positions
  *     responses:
  *       200:
- *         description: File edited successfully with updated content returned for review
+ *         description: File edited or read was successful
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               description: The updated file content
-*        400:
- *          description: Errors encountered after editing file
- *        content:
+ *               description: file content with line numbers
+ *       400:
+ *         description: There was an error in editing file
+ *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               description: schema containing issues and updated file content
+ *               description: details of the error including file content with line numbers
  */
 const editFileHandler = async (req, res) => {
     const { filePath, lineRangesToRemove, additions } = req.body;
