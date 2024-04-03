@@ -1,4 +1,4 @@
-# Server Commander
+# ChatGPT Server Commander
 
 This is the ChatGPT Server Commander project, an Express-based application designed for exposing to Custom ChatGPT  server commands as an action
 
