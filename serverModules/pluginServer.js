@@ -22,6 +22,7 @@ module.exports = async () => {
     expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
     openapiSpecification(expressApp);
+    expressApp.get('/access/:token', require('../api/fileAccessHandler').retrieveFile);
     expressApp.use(require('./auth.js')(log, config));
 
     let serverUrl = '';
@@ -39,6 +40,7 @@ module.exports = async () => {
             initTunnel(config).then(({url, tunnel,}) => {
                     activeTunnel = tunnel;
                     serverUrl = url;
+                    log('set url to', url);
                 }
             );
         }

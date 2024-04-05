@@ -12,13 +12,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "diff": "^5.2.0",
+    "esprima": "^4.0.1",
     "express": "^4.19.2",
     "firebase-admin": "^12.0.0",
     "inquirer": "^8.0.0",
     "localtunnel": "^2.0.2",
     "socket.io": "^4.7.4",
     "swagger-autogen": "^2.23.7",
-    "swagger-jsdoc": "^6.2.8",
-    "esprima": "^4.0.1"
+    "swagger-jsdoc": "^6.2.8"
   }
 }

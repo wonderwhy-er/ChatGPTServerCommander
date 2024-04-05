@@ -14,6 +14,8 @@ module.exports = {
         app.get('/api/logs', require('../api/getLogsHandler'));
         app.post('/api/restart', exitApplicationHandler(close));
         app.post("/api/interrupt", interruptHandler);
+        app.post('/api/file-access', require('../api/fileAccessHandler').createToken(getURL));
         app.post('/api/edit-or-read-file', require('../api/editFileHandler'));
+        
     }
 };

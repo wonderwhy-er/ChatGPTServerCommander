@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { checkJavaScriptFile } = require('../serverModules/checkjs');
-const {stringifyError} = require("../serverModules/stringifyError"); // Adjust the path as needed
+const {stringifyError} = require("../serverModules/stringifyError");
+const {log} = require("../serverModules/logger"); // Adjust the path as needed
 
 
 /**
@@ -10,7 +11,18 @@ const {stringifyError} = require("../serverModules/stringifyError"); // Adjust t
  * @param {Array<{line: number, content: string[]}>} additions - Lines to add and their positions.
  */
 const editFile = async (filePath, lineRangesToRemove = [], additions = []) => {
-    let fileContent = await fs.promises.readFile(filePath, 'utf8');
+    let fileHandle;
+    let fileContent;
+    try {
+        fileHandle = await fs.promises.open(filePath, 'a+'); // Open file, 'a+' flag creates the file if it doesn't exist
+        fileContent = await fileHandle.readFile('utf8');
+        log(fileContent); // Process your file content as needed
+    } catch (err) {
+       log('Error reading or creating file:', err);
+    } finally {
+        if (fileHandle !== undefined) await fileHandle.close(); // Close the file handle regardless of success or error
+    }
+
     if (lineRangesToRemove.length > 0 || additions.length > 0) {
         // Create a backup of the original file with a timestamp
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -97,9 +109,8 @@ const editFileHandler = async (req, res) => {
         updatedContent = updatedContent.split('\n').map((line, index) => {
             return `${index + 1}: ${line}`;
         }).join('\n');
-        let issues = [];
         if (filePath.endsWith('.js')) {
-            issues = await checkJavaScriptFile(filePath);
+            let issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
                 res.status(400).send('Issues found in the file: \n' + JSON.stringify(issues) + '\n File content with line numbers: ' + updatedContent);
                 return;

@@ -29,7 +29,7 @@ module.exports = {
             log('Tunnel created at', tunnel.url);
             setURL(tunnel.url);
             return {
-                url: `${tunnel.url}/log`,
+                url: `${tunnel.url}`,
                 tunnel,
             }
         }).catch(error => {
