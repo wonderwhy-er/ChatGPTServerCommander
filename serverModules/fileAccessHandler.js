@@ -18,38 +18,8 @@ const writeToTokenStore = (tokenStore) => {
     fs.writeFileSync(tokenStorePath, JSON.stringify(tokenStore, null, 2), "utf8");
 };
 
-/**
- * @openapi
- * /api/file-access:
- *   post:
- *     summary: Generates a file access URL
- *     description: Generates a unique token and returns a URL for accessing a specified file.
- *     operationId: fileAccess
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               filePath:
- *                 type: string
- *                 description: Path to the file to be accessed.
- *     responses:
- *       200:
- *         description: Access URL generated.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 url:
- *                   type: string
- *                   description: The generated access URL for the file.
- *
- */
-module.exports.createToken = (getURL) => (req, res) => {
-    const { filePath } = req.body;
+
+module.exports.createToken = (getURL, filePath) => {
     const tokenStore = readTokenStore();
     let token = '';
     let existingTokenFound = false;
@@ -83,7 +53,7 @@ module.exports.createToken = (getURL) => (req, res) => {
     const serverUrl = getURL(); // Gets the base server URL
     const accessUrl = `${serverUrl}/access/${token}`; // Constructs the file access URL
     log('created url', serverUrl);
-    res.json({ url: accessUrl });
+    return  accessUrl;
 };
 
 module.exports.retrieveFile = (req, res) => {

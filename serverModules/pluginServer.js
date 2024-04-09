@@ -22,7 +22,7 @@ module.exports = async () => {
     expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
     openapiSpecification(expressApp);
-    expressApp.get('/access/:token', require('../api/fileAccessHandler').retrieveFile);
+    expressApp.get('/access/:token', require('./fileAccessHandler').retrieveFile);
     expressApp.use(require('./auth.js')(log, config));
 
     let serverUrl = '';
