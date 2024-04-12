@@ -29,7 +29,7 @@ module.exports.createToken = (getURL, filePath) => {
         const tokenInfo = tokenStore[existingToken];
         if (tokenInfo.filePath === filePath && new Date(tokenInfo.expiryDate) > new Date()) {
             // Extend the existing token's expiry date
-            tokenInfo.expiryDate = new Date(new Date().getTime() + 60000);
+            tokenInfo.expiryDate = new Date(new Date().getTime() + 600000);
             token = existingToken;
             existingTokenFound = true;
         }
