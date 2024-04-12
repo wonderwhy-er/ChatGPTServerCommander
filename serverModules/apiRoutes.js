@@ -5,6 +5,22 @@ const {initDB} = require("./firebaseDB");
 
 module.exports = {
     addApi: (app, config, getURL, close) => {
+        // Logging middleware to log request and response details
+        app.use((req, res, next) => {
+            const originalSend = res.send;
+            console.log(`Request to ${req.path}:`);
+            console.log('Query Params:', req.query);
+            console.log('Body:', req.body);
+
+            res.send = function(data) {
+                console.log(`Response from ${req.path}:`);
+                console.log('Response:', data);
+                originalSend.call(this, data);
+            };
+
+            next();
+        });
+
         app.post('/api/runTerminalScript', terminalHandler);
         if(config.firebaseAccountKey) {
             initDB(config.firebaseAccountKey);
