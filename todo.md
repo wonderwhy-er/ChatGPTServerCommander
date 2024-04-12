@@ -1,15 +1,23 @@
+# To-Do List
 
-1. [ ] **Update API Handler**:
-   - Refactor the existing `createAppHandler` in `firebase.js` to handle create, read, and update operations based on request parameters (`id` and `content`).
-
-2. [ ] **Implement Helper Functions**:
-   - Create or ensure functions for reading and updating application data by ID in `firebaseDB.js`.
-
-3. [ ] **Update OpenAPI Documentation**:
+## API Handling and Updates
+- [ ] **Update API Handler**:
+   - Refactor `createAppHandler` in `firebase.js` to handle create, read, and update operations based on request parameters (`id` and `content`).
+- [ ] **OpenAPI Documentation Update**:
    - Adjust the OpenAPI comment in `firebase.js` to describe the unified API's functionality, including the create, read, and update operations.
-
-4. [ ] **Error Handling and Validation**:
+- [ ] **Error Handling and Validation**:
    - Implement robust error handling and parameter validation for the unified API.
-
-5. [ ] **Testing**:
+- [ ] **Implement Helper Functions**:
+   - Create or ensure functions for reading and updating application data by ID in `firebaseDB.js`.
+- [ ] **Testing**:
    - Thoroughly test the unified API for create, read, and update operations with various inputs.
+
+## File Path Handling Refactor
+- [ ] **Add `getCurrentDirectory` function in `terminal.js`**:
+   - Implement a function to retrieve the current directory of the terminal.
+- [ ] **Import `getCurrentDirectory` in `readEditTextFileHandler.js`**:
+   - Use the `getCurrentDirectory` function to handle file paths relative to the terminal's current directory.
+- [ ] **Refactor `readEditTextFileHandler.js`**:
+   - Handle file paths relative to the current terminal directory.
+- [ ] **Adjustments in `terminal.js`**:
+   - Ensure that file paths are handled using absolute paths to maintain consistent directory context.
