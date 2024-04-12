@@ -140,6 +140,7 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             let unsuccessfulMessages = unsuccessfulReplacements.join("; ");
             responseMessage += `\nUnsuccessful replacements due to missing texts: ${unsuccessfulMessages}`;
             res.status(400).send(responseMessage);
+            return;
         }
 
         res.type('text/plain').send(responseMessage);
