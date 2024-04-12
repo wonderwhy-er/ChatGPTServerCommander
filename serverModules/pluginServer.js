@@ -37,10 +37,14 @@ module.exports = async () => {
     server.listen(config.port, () => {
         log('Server running on http://localhost:' + config.port);
         if (config.useLocalTunnel) {
-            initTunnel(config).then(({url, tunnel,}) => {
-                    activeTunnel = tunnel;
-                    serverUrl = url;
-                    log('set url to', url);
+            initTunnel(config).then((data) => {
+                    if (!data) {
+                        process.exit();
+                    } else {
+                        activeTunnel = data.tunnel;
+                        serverUrl = data.url;
+                        log('set url to', data.url);
+                    }
                 }
             );
         }
