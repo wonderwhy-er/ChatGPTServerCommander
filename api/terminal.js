@@ -135,5 +135,16 @@ function interruptHandler(req, res) {
     }
 }
 
-module.exports = {interruptHandler, terminalHandler};
+function getCurrentDirectory() {
+    return new Promise((resolve, reject) => {
+        shell.stdin.write("pwd\n");
+        shell.stdout.once('data', (data) => {
+            resolve(data.toString().trim());
+        });
+        shell.stderr.once('data', (data) => {
+            reject(new Error(data.toString().trim()));
+        });
+    });
+}
 
+module.exports = {getCurrentDirectory, interruptHandler, terminalHandler};

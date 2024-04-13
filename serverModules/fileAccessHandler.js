@@ -68,10 +68,8 @@ module.exports.retrieveFile = (req, res) => {
     if (new Date(tokenInfo.expiryDate) < new Date()) {
         return res.status(410).send('Token has expired.');
     }
-     const filePath = path.join(__dirname, '../', tokenInfo.filePath); // Adjusted to construct paths relative to the root directory
 
-
-    fs.readFile(filePath, 'utf8', (err, data) => {
+    fs.readFile(tokenInfo.filePath, 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             return res.status(500).send('Failed to read the file.');

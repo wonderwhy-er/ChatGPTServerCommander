@@ -3,6 +3,7 @@ const { checkJavaScriptFile } = require('../serverModules/checkjs');
 const { stringifyError } = require("../serverModules/stringifyError");
 const {log} = require("../serverModules/logger");
 const {createToken} = require("../serverModules/fileAccessHandler");
+const {getCurrentDirectory} = require("./terminal");
 
 /**
  * Replaces sections of a file based on specified start and end texts, with provided replacement texts.
@@ -117,6 +118,7 @@ const replaceTextInSection = async (filePath, replacements) => {
  */
 const readEditTextFileHandler = (getURL) => async (req, res) => {
     let { filePath, replacements } = req.body;
+    filePath = (await getCurrentDirectory()) + '/' + filePath; // Adjusting filePath to be relative to the current directory
     replacements = replacements || [];
     try {
         let { updatedContent, unsuccessfulReplacements } = await replaceTextInSection(filePath, replacements);
