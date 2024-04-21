@@ -36,19 +36,34 @@ const replaceTextInSection = async (filePath, replacements) => {
         let unsuccessfulReplacements = [];
         replacements.forEach((replacement) => {
             let {startText, endText} = replacement;
-            let startIndexes = [...fileContent.matchAll(new RegExp(startText, 'g'))].map(match => match.index);
-            let endIndexes = [...fileContent.matchAll(new RegExp(endText, 'g'))].map(match => match.index + endText.length);
+            let startIndex = fileContent.indexOf(startText);
+            let endIndex = fileContent.indexOf(endText, startIndex);
+            const startCounts = fileContent.split(startText).length;
+            const endCounts = fileContent.split(endText).length;
 
-            if (startIndexes.length > 1 || endIndexes.length > 1) {
-                unsuccessfulReplacements.push(`Multiple occurrences found for texts: startText: "${startText}", endText: "${endText}"`);
+
+            if (startCounts > 2 || endCounts > 2) {
+                if(startCounts > 2 && endCounts > 2) {
+                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: startText: '${startText}' found ${startCounts - 1} times, endText: '${endText}' found ${endCounts - 1} times`);
+                } else if(startCounts > 2) {
+                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: startText: '${startText}' found ${startCounts - 1}`);
+                } else {
+                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: endText: '${endText}' found ${endCounts - 1} times`);
+                }
+
                 return; // Skip replacement for this iteration
-            } else if (startIndexes.length === 0 || endIndexes.length === 0) {
-                unsuccessfulReplacements.push(`Text not found: startText: "${startText}", endText: "${endText}"`);
+            } else if (startIndex < 0 || endIndex < 0) {
+                if (startIndex < 0 && endText < 0) {
+                    unsuccessfulReplacements.push(`Text not found: both startText: '${startText}' and endText: '${endText}'`);
+                } if(startIndex < 0) {
+                    unsuccessfulReplacements.push(`Text not found. startText: '${startText}`);
+                } else {
+                    unsuccessfulReplacements.push(`Text not found: endText: '${endText}'`);
+                }
+
                 return; // Skip replacement for this iteration
             }
 
-            let startIndex = startIndexes[0];
-            let endIndex = endIndexes[0];
             fileContent = fileContent.substring(0, startIndex) + replacement.replacementText + fileContent.substring(endIndex);
         });
 

@@ -12,12 +12,17 @@
 - [ ] **Testing**:
    - Thoroughly test the unified API for create, read, and update operations with various inputs.
 
-## File Path Handling Refactor
-- [ ] **Add `getCurrentDirectory` function in `terminal.js`**:
-   - Implement a function to retrieve the current directory of the terminal.
-- [ ] **Import `getCurrentDirectory` in `readEditTextFileHandler.js`**:
-   - Use the `getCurrentDirectory` function to handle file paths relative to the terminal's current directory.
-- [ ] **Refactor `readEditTextFileHandler.js`**:
-   - Handle file paths relative to the current terminal directory.
-- [ ] **Adjustments in `terminal.js`**:
-   - Ensure that file paths are handled using absolute paths to maintain consistent directory context.
+## Add git diff viewer
+- [ ] **Implement Git Diff Generation**:
+   - Integrate `simple-git` to generate diffs for specified files and commits.
+- [ ] **Setup Diff Viewer**:
+   - Utilize `diff2html` to parse and display diffs in a user-friendly format.
+- [ ] **Create API Endpoint**:
+   - Develop a new API endpoint to handle git diff requests and return formatted HTML.
+- [ ] **Setup Server-Side HTML Generation**:
+   - Develop server-side logic to generate an HTML page that embeds the git diff directly in the body.
+- [ ] **Include JavaScript Library from CDN**:
+   - Include a script tag in the HTML to load a diff rendering library like `diff2html` from a CDN.
+- [ ] **Automatically Render Diff on Page Load**:
+   - Ensure the JavaScript library automatically renders the diff content in a formatted style when the HTML page is loaded.- [ ] **Testing and Documentation**:
+   - Conduct thorough testing for the new features and update project documentation accordingly.
