@@ -4,18 +4,14 @@ const { stringifyError } = require("../serverModules/stringifyError");
 const {log} = require("../serverModules/logger");
 const {createToken} = require("../serverModules/fileAccessHandler");
 const {getCurrentDirectory} = require("./terminal");
+const fileEdit = require('../serverModules/fileEdit');
 
-/**
- * Replaces sections of a file based on specified start and end texts, with provided replacement texts.
- * @param {string} filePath - The path to the file to be edited.
- * @param {Array<{startText: string, endText: string, replacementText: string}>} replacements - List of replacements to be made.
- */
-const replaceTextInSection = async (filePath, replacements) => {
+const replaceTextInSection = async (filePath, requestBody) => {
     let fileHandle;
     let fileContent = '';
 
     // Check if the file exists only when replacements are empty
-    if (replacements.length === 0 && !fs.existsSync(filePath)) {
+    if ((!requestBody.replacements || requestBody.replacements.length === 0) && !fs.existsSync(filePath)) {
         throw new Error('File does not exist, if you want to create it ask for initial content and all again.'); // File does not exist and no replacements specified, so do nothing
     }
 
@@ -28,56 +24,7 @@ const replaceTextInSection = async (filePath, replacements) => {
         if (fileHandle !== undefined) await fileHandle.close(); // Close the file handle regardless of success or error
     }
 
-    if (replacements.length > 0) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const backupFilePath = `${filePath}.backup-${timestamp}`;
-        await fs.promises.writeFile(backupFilePath, fileContent);
-
-        let unsuccessfulReplacements = [];
-        replacements.forEach((replacement) => {
-            let {startText, endText} = replacement;
-            let startIndex = fileContent.indexOf(startText);
-            let endIndex = fileContent.indexOf(endText, startIndex);
-            const startCounts = fileContent.split(startText).length;
-            const endCounts = fileContent.split(endText).length;
-
-
-            if (startCounts > 2 || endCounts > 2) {
-                if(startCounts > 2 && endCounts > 2) {
-                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: startText: '${startText}' found ${startCounts - 1} times, endText: '${endText}' found ${endCounts - 1} times`);
-                } else if(startCounts > 2) {
-                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: startText: '${startText}' found ${startCounts - 1}`);
-                } else {
-                    unsuccessfulReplacements.push(`Multiple occurrences found for texts: endText: '${endText}' found ${endCounts - 1} times`);
-                }
-
-                return; // Skip replacement for this iteration
-            } else if (startIndex < 0 || endIndex < 0) {
-                if (startIndex < 0 && endText < 0) {
-                    unsuccessfulReplacements.push(`Text not found: both startText: '${startText}' and endText: '${endText}'`);
-                } if(startIndex < 0) {
-                    unsuccessfulReplacements.push(`Text not found. startText: '${startText}`);
-                } else {
-                    unsuccessfulReplacements.push(`Text not found: endText: '${endText}'`);
-                }
-
-                return; // Skip replacement for this iteration
-            }
-
-            fileContent = fileContent.substring(0, startIndex) + replacement.replacementText + fileContent.substring(endIndex);
-        });
-
-        await fs.promises.writeFile(filePath, fileContent);
-
-        // Return unsuccessful replacements if any
-        if (unsuccessfulReplacements.length > 0) {
-            return { updatedContent: fileContent, unsuccessfulReplacements };
-        }
-
-        return { updatedContent: fileContent, unsuccessfulReplacements: [] };
-
-    }
-    return { updatedContent: fileContent, unsuccessfulReplacements: [] };
+    return fileEdit(fileContent, requestBody);
 };
 
 /**
@@ -132,25 +79,25 @@ const replaceTextInSection = async (filePath, replacements) => {
  *                   description: Details of the error along with file current content and access url
  */
 const readEditTextFileHandler = (getURL) => async (req, res) => {
-    let { filePath, replacements } = req.body;
+    let { filePath } = req.body;
     filePath = (await getCurrentDirectory()) + '/' + filePath; // Adjusting filePath to be relative to the current directory
-    replacements = replacements || [];
     try {
-        let { updatedContent, unsuccessfulReplacements } = await replaceTextInSection(filePath, replacements);
+        let { updatedContent, unsuccessfulReplacements } = await replaceTextInSection(filePath, req.body);
+
+        let responseMessage = `File url: ${createToken(getURL, filePath)}\nFile content: ${updatedContent}`;
 
         // Check if the updated file content has any JavaScript issues
         if (filePath.endsWith('.js')) {
             let issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
-                let issuesMessage = 'Issues found in the file: \n' + JSON.stringify(issues);
-                let contentMessage = '\nFile content with line numbers: ' + updatedContent;
-                res.status(400).send(issuesMessage + contentMessage);
+                responseMessage += 'Issues found in the file: \n' + JSON.stringify(issues);
+                res.status(400).send(responseMessage);
                 return;
             }
         }
 
         // Construct the response message
-        let responseMessage = `File url: ${createToken(getURL, filePath)}\nFile content: ${updatedContent}`;
+
         
         // Include information about unsuccessful replacements, if any
         if (unsuccessfulReplacements.length > 0) {

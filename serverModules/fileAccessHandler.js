@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const {log} = require("../serverModules/logger");
+const simpleGit = require("simple-git");
 
 const tokenStorePath = path.join(__dirname, "../tokenStore.json");
 
@@ -38,7 +39,7 @@ module.exports.createToken = (getURL, filePath) => {
     if (!existingTokenFound) {
         // Create a new token if none exists for the filePath
         token = crypto.randomBytes(20).toString('hex');
-        tokenStore[token] = { filePath, expiryDate: new Date(new Date().getTime() + 60000) };
+        tokenStore[token] = { filePath, expiryDate: new Date(new Date().getTime() + 600000) };
     }
 
     // Filter out expired tokens
@@ -56,7 +57,7 @@ module.exports.createToken = (getURL, filePath) => {
     return  accessUrl;
 };
 
-module.exports.retrieveFile = (req, res) => {
+module.exports.retrieveFile = async (req, res) => {
     const { token } = req.params; // Assume the token is passed as a URL parameter
     const tokenStore = readTokenStore();
 
@@ -69,12 +70,43 @@ module.exports.retrieveFile = (req, res) => {
         return res.status(410).send('Token has expired.');
     }
 
-    fs.readFile(tokenInfo.filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Failed to read the file.');
+    if (req.query.diff) {
+        const git = simpleGit();
+        try {
+            const diffOutput = await git.diff(['--', tokenInfo.filePath]);
+            const htmlDiff = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Git Diff</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+                    <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+                </head>
+                <body>
+                    <div id="diff"></div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const diffHtml = Diff2Html.html(Buffer.from('${Buffer.from(diffOutput).toString('base64')}', 'base64').toString('ascii'), {inputFormat: 'diff', showFiles: true, matching: 'lines'});
+                            document.getElementById('diff').innerHTML = diffHtml;
+                        });
+                    </script>
+                </body>
+                </html>
+                `;
+
+            res.send(htmlDiff);
+        } catch (error) {
+            log('Error fetching Git diff:', error);
+            res.status(500).send('Error fetching Git diff: ' + error.message);
         }
-        res.setHeader('Content-Type', 'text/plain');
-        res.send(data);
-    });
+    } else {
+        fs.readFile(tokenInfo.filePath, 'utf8', (err, data) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Failed to read the file.');
+            }
+            res.setHeader('Content-Type', 'text/plain');
+            res.send(data);
+        });
+    }
 };
