@@ -86,7 +86,7 @@ module.exports.retrieveFile = async (req, res) => {
                     <div id="diff"></div>
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
-                            const diffHtml = Diff2Html.html(Buffer.from('${Buffer.from(diffOutput).toString('base64')}', 'base64').toString('ascii'), {inputFormat: 'diff', showFiles: true, matching: 'lines'});
+                            const diffHtml = Diff2Html.html(atob('${Buffer.from(diffOutput).toString('base64')}'), {inputFormat: 'diff', showFiles: true, matching: 'lines'});
                             document.getElementById('diff').innerHTML = diffHtml;
                         });
                     </script>

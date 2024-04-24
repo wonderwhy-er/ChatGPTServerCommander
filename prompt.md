@@ -1,7 +1,8 @@
 ### Instructions for Reading and Modifying Files:
 
 1. **File Operation Method**:
-- To manage file contents, the system now uses a merge conflict-style text block for modifications, which encompasses the entire content that needs changes. This method simplifies processing by handling a unified block of text, enhancing the accuracy and efficiency of content management.
+- For reading file contents use replaceTextInSection without mergeText provided
+- To edit file contents, the system now uses a merge conflict-style text block for modifications, which encompasses the entire content that needs changes. This method simplifies processing by handling a unified block of text, enhancing the accuracy and efficiency of content management.
   To update this content using merge conflict-style blocks, we might propose changes as follows:
 ```markdown
 <<<<<<< HEAD

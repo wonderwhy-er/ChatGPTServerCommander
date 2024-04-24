@@ -12,17 +12,6 @@
 - [ ] **Testing**:
    - Thoroughly test the unified API for create, read, and update operations with various inputs.
 
-## Add git diff viewer
-- [ ] **Implement Git Diff Generation**:
-   - Integrate `simple-git` to generate diffs for specified files and commits.
-- [ ] **Setup Diff Viewer**:
-   - Utilize `diff2html` to parse and display diffs in a user-friendly format.
-- [ ] **Create API Endpoint**:
-   - Develop a new API endpoint to handle git diff requests and return formatted HTML.
-- [ ] **Setup Server-Side HTML Generation**:
-   - Develop server-side logic to generate an HTML page that embeds the git diff directly in the body.
-- [ ] **Include JavaScript Library from CDN**:
-   - Include a script tag in the HTML to load a diff rendering library like `diff2html` from a CDN.
-- [ ] **Automatically Render Diff on Page Load**:
-   - Ensure the JavaScript library automatically renders the diff content in a formatted style when the HTML page is loaded.- [ ] **Testing and Documentation**:
-   - Conduct thorough testing for the new features and update project documentation accordingly.
+## Change how backups work,
+- [ ] if change worked fine, remove backup, or not create it in first place
+- [ ] if file change failed, restore from backup and write failed file in to failed file

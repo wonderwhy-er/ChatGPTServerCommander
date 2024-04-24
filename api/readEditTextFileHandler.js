@@ -54,7 +54,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *                 description: Path to the file to be edited
  *               mergeText:
  *                 type: string
- *                 description: Text containing merge conflict-style modifications for the file
+ *                 description: optional parameter text containing merge conflict-style modifications for the file, if omitted it operation will just read and return file
  *     responses:
  *       200:
  *         description: File modification was successful
@@ -83,7 +83,8 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
     try {
         let { updatedContent, unsuccessfulReplacements } = await replaceTextInSection(filePath, req.body);
 
-        let responseMessage = `File url: ${createToken(getURL, filePath)}\nFile content: ${updatedContent}`;
+        const url = createToken(getURL, filePath);
+        let responseMessage = `File url: ${url}\nChanged diff url: ${createToken(getURL, filePath)}?diff=1\nFile content: ${updatedContent}`;
 
         // Check if the updated file content has any JavaScript issues
         if (filePath.endsWith('.js')) {
