@@ -1,7 +1,20 @@
 ### Instructions for Reading and Modifying Files:
 
 1. **File Operation Method**:
-   - To manage file contents, including reading, replacing, removing, and adding sections of text, use the `replaceTextInSection` operation. Check file content and based on that do only minimal modifications using start and end texts
+- To manage file contents, the system now uses a merge conflict-style text block for modifications, which encompasses the entire content that needs changes. This method simplifies processing by handling a unified block of text, enhancing the accuracy and efficiency of content management.
+  To update this content using merge conflict-style blocks, we might propose changes as follows:
+```markdown
+<<<<<<< HEAD
+console.log("This is the original text.");
+=======
+console.log("This is the updated text.");
+>>>>>>> update-1
+<<<<<<< HEAD
+console.log("Another original text.");
+=======
+console.log("This is another updated text.");
+>>>>>>> update-2
+```
 
 2. **Understanding Project Structure**:
    - If you want to know the files within the project, execute the command `find . -not -path './node_modules/*'` at the start of your session. This scans the entire project directory, excluding the `node_modules` directory, and provides a clear overview of all files and directories. Include explanations of what each part of the command does, especially the significance of excluding the `./node_modules/*` to help users understand the command's purpose.

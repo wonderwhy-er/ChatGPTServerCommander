@@ -11,7 +11,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
     let fileContent = '';
 
     // Check if the file exists only when replacements are empty
-    if ((!requestBody.replacements || requestBody.replacements.length === 0) && !fs.existsSync(filePath)) {
+    if ((!requestBody.mergeText || requestBody.mergeText.length === 0) && !fs.existsSync(filePath)) {
         throw new Error('File does not exist, if you want to create it ask for initial content and all again.'); // File does not exist and no replacements specified, so do nothing
     }
 
@@ -24,15 +24,23 @@ const replaceTextInSection = async (filePath, requestBody) => {
         if (fileHandle !== undefined) await fileHandle.close(); // Close the file handle regardless of success or error
     }
 
-    return fileEdit(fileContent, requestBody);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFilePath = `${filePath}.backup-${timestamp}`;
+    await fs.promises.writeFile(backupFilePath, fileContent);
+
+    const result = await fileEdit(fileContent, requestBody);
+
+    await fs.promises.writeFile(filePath, result.updatedContent);
+
+    return result;
 };
 
 /**
  * @openapi
  * /api/read-or-edit-file:
  *   post:
- *     summary: Read file and optionally replace content in it, can be used only for reading files, also returns file access url
- *     description: Takes a file path and an optional list of start and end texts along with their replacements, performs the replacements, returns resulting file, can be used to just read if called without replacements
+ *     summary: Read or modify a file using merge conflict-style blocks
+ *     description: Accepts a file path and a merge conflict text block, processes modifications, and returns the updated file content
  *     operationId: replaceTextInSection
  *     requestBody:
  *       required: true
@@ -44,21 +52,12 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *               filePath:
  *                 type: string
  *                 description: Path to the file to be edited
- *               replacements:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     startText:
- *                       type: string
- *                     endText:
- *                       type: string
- *                     replacementText:
- *                       type: string
- *                 description: List of text replacements
+ *               mergeText:
+ *                 type: string
+ *                 description: Text containing merge conflict-style modifications for the file
  *     responses:
  *       200:
- *         description: Text replacement was successful
+ *         description: File modification was successful
  *         content:
  *           application/json:
  *             schema:
@@ -66,7 +65,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *               properties:
  *                 content:
  *                   type: string
- *                   description: Url for file access and updated file content
+ *                   description: Updated file content and urls
  *       400:
  *         description: There was an error in the text replacement
  *         content:
