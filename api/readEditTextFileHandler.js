@@ -81,10 +81,14 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
     let { filePath } = req.body;
     filePath = (await getCurrentDirectory()) + '/' + filePath; // Adjusting filePath to be relative to the current directory
     try {
-        let { updatedContent, unsuccessfulReplacements } = await replaceTextInSection(filePath, req.body);
+        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, req.body);
 
         const url = createToken(getURL, filePath);
-        let responseMessage = `File url: ${url}\nChanged diff url: ${createToken(getURL, filePath)}?diff=1\nFile content: ${updatedContent}`;
+        let responseMessage = `
+        Fuzzy replacements: ${fuzzyReplacements.join('\n')}
+        File url: ${url}
+        Changed diff url: ${createToken(getURL, filePath)}?diff=1
+        File content: ${updatedContent}`;
 
         // Check if the updated file content has any JavaScript issues
         if (filePath.endsWith('.js')) {
