@@ -24,9 +24,6 @@ const replaceTextInSection = async (filePath, requestBody) => {
         if (fileHandle !== undefined) await fileHandle.close(); // Close the file handle regardless of success or error
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFilePath = `${filePath}.backup-${timestamp}`;
-    await fs.promises.writeFile(backupFilePath, fileContent);
 
     const result = await fileEdit(fileContent, requestBody);
 
