@@ -3,7 +3,7 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
 
 /**
  * @openapi
- * /api/create-app:
+ * /api/apps:
  *   post:
  *     summary: Create an application in Firestore
  *     description: Takes application data from the request body, creates an application in Firestore, and returns the application's ID and public ID
@@ -29,7 +29,10 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
  *                   properties:
  *                     type:
  *                       type: string
- *                       description: The type of external resource (e.g., "script", "style").
+ *                       description: The type of external resource tag name (e.g., "script", "style").
+*                        enum:
+ *                          - script
+ *                          - style
  *                     url:
  *                       type: string
  *                       description: The URL from where the resource can be accessed.

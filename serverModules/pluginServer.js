@@ -8,6 +8,7 @@ const {addApi} = require("./apiRoutes");
 const {log, getLog} = require("./logger");
 const {initTunnel} = require("./setupTunnel");
 const {initDB} = require("./firebaseDB");
+const {viewAppHandler, editAppHandler} = require("../api/firebaseAppHandlers");
 
 module.exports = async () => {
     log('start');
@@ -22,6 +23,9 @@ module.exports = async () => {
     expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
     openapiSpecification(expressApp);
+    const {viewAppHandler, editAppHandler} = require('../api/firebaseAppHandlers');
+    expressApp.get('/api/apps/view/:public_id', viewAppHandler);
+    expressApp.get('/api/apps/edit/:private_id', editAppHandler);
     expressApp.get('/access/:token', require('./fileAccessHandler').retrieveFile);
     expressApp.use(require('./auth.js')(log, config));
 

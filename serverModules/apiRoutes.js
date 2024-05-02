@@ -22,16 +22,12 @@ module.exports = {
         });
 
         app.post('/api/runTerminalScript', terminalHandler);
-        if(config.firebaseAccountKey) {
-            initDB(config.firebaseAccountKey);
-            app.post('/api/apps', createAppHandler);
-        }
+        app.post('/api/apps', createAppHandler);
         app.get('/api/server-url', require('../api/getServerUrlHandler')(getURL));
         app.get('/api/logs', require('../api/getLogsHandler'));
         app.post('/api/restart', exitApplicationHandler(close));
         app.post("/api/interrupt", interruptHandler);
-        //app.post('/api/edit-or-read-file', require('../api/editFileHandler'));
         app.post('/api/read-or-edit-file', require('../api/readEditTextFileHandler')(getURL));
-
+        // Add new routes for Firebase applications
     }
 };
