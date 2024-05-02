@@ -11,8 +11,3 @@
    - Create or ensure functions for reading and updating application data by ID in `firebaseDB.js`.
 - [ ] **Testing**:
    - Thoroughly test the unified API for create, read, and update operations with various inputs.
-
-## Change how backups work,
-- [ ] if change worked fine, remove backup, or not create it in first place
-- [ ] if file change failed, restore from backup and write failed file in to failed file
-
