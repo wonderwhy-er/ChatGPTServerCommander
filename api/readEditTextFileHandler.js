@@ -35,8 +35,35 @@ const replaceTextInSection = async (filePath, requestBody) => {
 /**
  * @openapi
  * /api/read-or-edit-file:
+ *   get:
+ *      operationId: readTextInFile
+ *      summary: Read a file content
+ *      parameters:
+ *        - in: query
+ *          name: filePath
+ *          required: true
+ *          schema:
+ *            type: string
+ *          description: Path to the file to be read
+ *      responses:
+ *        200:
+ *          description: File read successfully
+ *          content:
+ *            text/plain:
+ *              schema:
+ *                type: string
+ *        400:
+ *          description: Error reading the file
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  error:
+ *                    type: string
+ *                    description: Error message explaining the reason for failure
  *   post:
- *     summary: Read or modify a file using merge conflict-style blocks
+ *     summary: Modify a file using merge conflict-style blocks
  *     description: Accepts a file path and a merge conflict text block, processes modifications, and returns the updated file content
  *     operationId: replaceTextInSection
  *     requestBody:
@@ -51,7 +78,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *                 description: Path to the file to be edited
  *               mergeText:
  *                 type: string
- *                 description: optional parameter text containing merge conflict-style modifications for the file, if omitted it operation will just read and return file
+ *                 description: parameter text containing merge conflict-style modifications for the file
  *     responses:
  *       200:
  *         description: File modification was successful
@@ -75,19 +102,30 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *                   description: Details of the error along with file current content and access url
  */
 const readEditTextFileHandler = (getURL) => async (req, res) => {
-    let { filePath } = req.body;
-    filePath = (await getCurrentDirectory()) + '/' + filePath; // Adjusting filePath to be relative to the current directory
+    let filePath;
+    let body = {}; // Initialize with an empty object for safety
+
+    if (req.method === 'GET') {
+        filePath = req.query.filePath; // Get the file path from query parameters
+        body = { filePath }; // Mimic the structure expected by replaceTextInSection
+    } else if (req.method === 'POST') {
+        filePath = req.body.filePath; // Get the file path from request body
+        body = req.body; // Use the full request body for POST requests
+    }
+
+    filePath = (await getCurrentDirectory()) + '/' + filePath;
     try {
-        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, req.body);
+        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, body);
 
         const url = createToken(getURL, filePath);
         let responseMessage = `
-        Fuzzy replacements: ${fuzzyReplacements.join('\n')}
         File url: ${url}
-        Changed diff url: ${createToken(getURL, filePath)}?diff=1
-        File content: ${updatedContent}`;
+        Changed diff url: ${createToken(getURL, filePath)}?diff=1`;
 
-        // Check if the updated file content has any JavaScript issues
+        if (fuzzyReplacements.length > 0) {
+            responseMessage += `Fuzzy replacements: ${fuzzyReplacements.join('\n')}`
+        }
+
         if (filePath.endsWith('.js')) {
             let issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
@@ -97,16 +135,16 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             }
         }
 
-        // Construct the response message
-
-        
-        // Include information about unsuccessful replacements, if any
         if (unsuccessfulReplacements.length > 0) {
             let unsuccessfulMessages = unsuccessfulReplacements.join("; ");
             responseMessage += `\nUnsuccessful replacements due to missing texts: ${unsuccessfulMessages}`;
             res.status(400).send(responseMessage);
             return;
         }
+
+        responseMessage+= `\nFile content: ${updatedContent}`;
+
+        // Include information about unsuccessful replacements, if any
 
         res.type('text/plain').send(responseMessage);
     } catch (error) {
@@ -116,3 +154,4 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
 };
 
 module.exports = readEditTextFileHandler;
+

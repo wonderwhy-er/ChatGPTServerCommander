@@ -20,14 +20,15 @@ module.exports = {
 
             next();
         });
-
-        app.post('/api/runTerminalScript', terminalHandler);
+        const readEditTextFileHandler = require('../api/readEditTextFileHandler')(getURL);
+        app.get('/api/runTerminalScript', terminalHandler);
         app.post('/api/apps', createAppHandler);
         app.get('/api/server-url', require('../api/getServerUrlHandler')(getURL));
         app.get('/api/logs', require('../api/getLogsHandler'));
         app.post('/api/restart', exitApplicationHandler(close));
         app.post("/api/interrupt", interruptHandler);
-        app.post('/api/read-or-edit-file', require('../api/readEditTextFileHandler')(getURL));
+        app.post('/api/read-or-edit-file', readEditTextFileHandler);
+        app.get('/api/read-or-edit-file', readEditTextFileHandler);
         // Add new routes for Firebase applications
     }
 };
