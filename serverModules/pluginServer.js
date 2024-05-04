@@ -51,6 +51,8 @@ module.exports = async () => {
                     }
                 }
             );
+        } else {
+            setURL(serverUrl);
         }
     });
     return server;
