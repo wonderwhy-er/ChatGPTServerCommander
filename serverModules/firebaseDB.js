@@ -11,14 +11,14 @@ const initDB = () => {
 }
 
 const createAppInFirestore = async (appData) => {
-  const { name, description, externalResources, internalBlocks } = appData;
+  const { name, description, headTags, internalBlocks } = appData;
   const privateId = generatePrivateId(); // Implement this function based on your requirements.
 
   const newAppData = {
     privateId: privateId,
     name,
     description,
-    externalResources: externalResources || [],
+    externalResources: headTags || [],
     internalBlocks: internalBlocks || [],
     createdAt: admin.firestore.FieldValue.serverTimestamp() // Store creation timestamp
   };

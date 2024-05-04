@@ -5,8 +5,8 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
  * @openapi
  * /api/apps:
  *   post:
- *     summary: Create an application in Firestore
- *     description: Takes application data from the request body, creates an application in Firestore, and returns the application's ID and public ID
+ *     summary: Create a web application
+ *     description: Used to create web applications out of title, description, external resources and internal blocks.
  *     operationId: createApp
  *     requestBody:
  *       required: true
@@ -21,50 +21,47 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
  *               description:
  *                 type: string
  *                 description: Description of the application
- *               externalResources:
+ *               headTags:
  *                 type: array
- *                 description: An array of objects representing external resources like scripts and stylesheets.
+ *                 description: An array of tags representing external resources like scripts and stylesheets that will be added in to html head tag
  *                 items:
  *                   type: object
  *                   properties:
  *                     type:
  *                       type: string
- *                       description: The type of external resource tag name (e.g., "script", "style").
-*                        enum:
- *                          - script
- *                          - style
+ *                       description: header tag name like script or style
+ *                       enum:
+ *                         - script
+ *                         - style
  *                     url:
  *                       type: string
- *                       description: The URL from where the resource can be accessed.
+ *                       description: The URL from where the resource will be loaded, src or href for tags
  *               internalBlocks:
  *                 type: array
- *                 description: An array of objects representing internal content blocks such as scripts, styles, and HTML blocks.
+ *                 description: An array of tags representing body html tags scripts, styles, and divs and others.
  *                 items:
  *                   type: object
  *                   properties:
  *                     id:
  *                       type: string
- *                       description: A unique identifier for the content block.
+ *                       description: A unique identifier for the tag
  *                     type:
  *                       type: string
- *                       description: The type of content block (e.g., "script", "style", "html").
+ *                       description: The type of content tag (e.g., "script", "style", "div" and others).
  *                     content:
  *                       type: string
- *                       description: The actual content of the block (JavaScript code, CSS rules, HTML markup).
+ *                       description: Content of the tag depending on its type (JavaScript code, CSS rules, HTML markup).
  *     responses:
- *       201:
+ *       200:
  *         description: Application created successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 content:
  *                   type: string
- *                 id:
- *                   type: string
- *                 publicId:
- *                   type: string
+ *                   description: Success message with ids and urls
  *       500:
  *         description: Internal Server Error
  *         content:
@@ -73,15 +70,19 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
  *               type: string
  *               description: Error message
  */
-const createAppHandler = async (req, res) => {
-  try {
-    const appData = req.body;
-    const { id, publicId } = await createAppInFirestore(appData);
-    res.status(201).json({ message: 'App created successfully', id, publicId });
-  } catch (error) {
-    console.error('Error creating app:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
+module.exports = (getServerUrl) => {
+  return async (req, res) => {
+    try {
+      const appData = req.body;
+      const { id, privateId } = await createAppInFirestore(appData);
+      const serverUrl = getServerUrl();
+      const viewUrl = `${serverUrl}/api/apps/view/${id}`;
+      const editUrl = `${serverUrl}/api/apps/edit/${privateId}`;
+      res.type('text/plain').send(`App created successfully. ${JSON.stringify({id, privateId, viewUrl, editUrl}, undefined, 2)}`)
 
-module.exports = { createAppHandler };
+    } catch (error) {
+      console.error('Error creating app:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  };
+};
