@@ -29,7 +29,7 @@ module.exports = async () => {
     expressApp.get('/access/:token', require('./fileAccessHandler').retrieveFile);
     expressApp.use(require('./auth.js')(log, config));
 
-    let serverUrl = '';
+    let serverUrl = config.productionDomain;
     let activeTunnel;
     addApi(expressApp, config, () => serverUrl, () => activeTunnel && activeTunnel.close());
 

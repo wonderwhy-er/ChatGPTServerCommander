@@ -38,6 +38,13 @@ if (fs.existsSync(configFilePath)) {
             message: 'Enter the preferred subdomain name for Local Tunnel:',
             when: answers => answers.useLocalTunnel,
             validate: input => input !== '' || 'Subdomain name cannot be empty'
+        },
+        {
+            name: 'productionDomain',
+            type: 'input',
+            message: 'Enter the full url of server:',
+            when: answers => !answers.useLocalTunnel,
+            validate: input => input !== '' || 'Subdomain name cannot be empty'
         }
     ]).then(answers => {
         // Generate authorization token

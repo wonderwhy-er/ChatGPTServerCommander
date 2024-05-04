@@ -1,8 +1,13 @@
 const { spawn } = require('child_process');
 
 // Create a persistent shell
-let shell = spawn('zsh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
-shell.stdin.write('source ~/.zshrc\n');
+let shell;
+try {
+    shell = spawn('zsh', [], {stdio: ['pipe', 'pipe', 'pipe']});
+    shell.stdin.write('source ~/.zshrc\n');
+} catch(e) {
+    shell = spawn('bash', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+}
 const delimiter = 'COMMAND_FINISHED_DELIMITER';
 let output = "";
 
