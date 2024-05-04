@@ -3,9 +3,24 @@ const { spawn } = require('child_process');
 // Create a persistent shell
 let shell;
 try {
-    shell = spawn('zsh', [], {stdio: ['pipe', 'pipe', 'pipe']});
-    shell.stdin.write('source ~/.zshrc\n');
-} catch(e) {
+    shell = spawn('zsh2', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+    if (shell.stdin.writable) {
+        shell.stdin.write('source ~/.zshrc\n');
+    }
+
+    shell.on('error', (err) => {
+        console.error('Failed to start zsh:', err);
+        // Fallback to bash if zsh fails
+        shell = spawn('bash', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+    });
+
+    shell.on('exit', (code, signal) => {
+        console.log(`Shell exited with code ${code} and signal ${signal}`);
+    });
+
+} catch (e) {
+    console.error('Error spawning shell:', e);
+    // Fallback to bash in case of an unexpected error in try block
     shell = spawn('bash', [], { stdio: ['pipe', 'pipe', 'pipe'] });
 }
 const delimiter = 'COMMAND_FINISHED_DELIMITER';
