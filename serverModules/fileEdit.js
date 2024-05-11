@@ -2,6 +2,20 @@ const fs = require("fs");
 const conflictDelimiterRegex = /<<<<<<< HEAD[\s\S]*?>>>>>>> [\w-]+/g;
 const recursiveFuzzyIndexOf = require('./fuzzySearch');
 
+const expandToFullLines = (fileContent, startIndex, endIndex) => {
+    // Expand the start index to the beginning of the line
+    while (startIndex > 0 && fileContent[startIndex - 1] !== '\n') {
+        startIndex--;
+    }
+
+    // Expand the end index to the end of the line
+    while (endIndex < fileContent.length && fileContent[endIndex] !== '\n') {
+        endIndex++;
+    }
+
+    return { startIndex, endIndex };
+};
+
 module.exports = async (fileContent, requestBody) => {
     const conflictText = requestBody.mergeText || '';
     const conflicts = conflictText.match(conflictDelimiterRegex) || [];
@@ -16,6 +30,10 @@ module.exports = async (fileContent, requestBody) => {
 
             let startIndex = fileContent.indexOf(originalText);
             let endIndex = startIndex + originalText.length;
+            const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
+            startIndex = adjusted.startIndex;
+            endIndex = adjusted.endIndex;
+
             const startCounts = fileContent.split(originalText).length - 1;
 
 
@@ -25,6 +43,9 @@ module.exports = async (fileContent, requestBody) => {
             } else if (startIndex < 0) {
                 const fuzzyResult = recursiveFuzzyIndexOf(fileContent, originalText);
                 if (fuzzyResult.distance / originalText.length < 0.3) {
+                    const adjusted = expandToFullLines(fileContent, fuzzyResult.start, fuzzyResult.end);
+                    fuzzyResult.start = adjusted.startIndex;
+                    fuzzyResult.end = adjusted.endIndex;
                     fuzzyReplacements.push(`Fuzzy replacement, searched for ${originalText}, found ${fuzzyResult.value}`)
                     fileContent = fileContent.substring(0, fuzzyResult.start) + replacementText + fileContent.substring(fuzzyResult.end);
                 } else {
