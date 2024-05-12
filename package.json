@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "diff": "^5.2.0",
-    "esprima": "^4.0.1",
+    "espree": "^10.0.1",
     "express": "^4.19.2",
     "fastest-levenshtein": "^1.0.16",
     "firebase-admin": "^12.0.0",
