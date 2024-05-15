@@ -3,7 +3,7 @@ const { spawn } = require('child_process');
 // Create a persistent shell
 let shell;
 try {
-    shell = spawn('zsh2', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+    shell = spawn('zsh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
     if (shell.stdin.writable) {
         shell.stdin.write('source ~/.zshrc\n');
     }
