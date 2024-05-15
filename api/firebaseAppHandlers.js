@@ -16,27 +16,14 @@ async function viewAppHandler(req, res) {
 <meta name="description" content="${appData.description}">
 `;
 
-        // Include external resources in the head
-        if (appData.externalResources) {
-            appData.externalResources.forEach(resource => {
-                if (resource.type === 'style') {
-                    html += `<link rel="stylesheet" href="${resource.url}">`;
-                } else if (resource.type === 'script') {
-                    html += `<script src="${resource.url}"></script>`;
-                }
-            });
-        }
 
+        // Insert head HTML content directly
+        html += appData.headHtml || '';
         html += `</head><body>`;
 
-        // Internal blocks as body content
-        if (appData.internalBlocks) {
-            appData.internalBlocks.forEach(block => {
-                html += `<${block.type}>${block.content}</${block.type}>`;
-                // Add more conditions here for different types of content
-            });
-        }
 
+        // Body content directly from HTML string
+        html += appData.bodyHtml;
         html += `</body></html>`;
 
         res.setHeader('Content-Type', 'text/html');

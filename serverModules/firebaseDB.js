@@ -10,23 +10,23 @@ const initDB = () => {
   db = admin.firestore();
 }
 
+
 const createAppInFirestore = async (appData) => {
-  const { name, description, headTags, internalBlocks } = appData;
-  const privateId = generatePrivateId(); // Implement this function based on your requirements.
+  const { name, description, headHtml, bodyHtml } = appData;
+  const privateId = generatePrivateId();
 
   const newAppData = {
     privateId: privateId,
     name,
     description,
-    externalResources: headTags || [],
-    internalBlocks: internalBlocks || [],
-    createdAt: admin.firestore.FieldValue.serverTimestamp() // Store creation timestamp
+    headHtml: headHtml || '',
+    bodyHtml: bodyHtml || '',
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
   };
 
   const docRef = await db.collection('Apps').add(newAppData);
   return { id: docRef.id, privateId: privateId };
 };
-
 function generatePrivateId() {
   // Returns a randomly generated private ID for app identification
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
