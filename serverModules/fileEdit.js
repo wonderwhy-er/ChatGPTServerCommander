@@ -37,7 +37,7 @@ module.exports = async (fileContent, requestBody) => {
             const startCounts = fileContent.split(originalText).length - 1;
 
 
-            if (startCounts > 1) {
+            if (originalText!=="" && startCounts > 1) {
                 unsuccessfulReplacements.push(`Multiple occurrences found for text: '${originalText}' found ${startCounts} times`);
                 return;
             } else if (startIndex < 0) {
@@ -58,6 +58,8 @@ module.exports = async (fileContent, requestBody) => {
         });
 
         return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements };
+    } if(conflictText.length > 0) {
+        throw new Error('mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again')
     }
     return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [] };
 }

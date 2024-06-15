@@ -2,21 +2,40 @@
 
 1. **File Operation Method**:
 - For reading file contents use readTextInFile
-- To edit file contents use replaceTextInSection, the system now uses a merge conflict-style text block for modifications, which encompasses the entire content that needs changes. This method simplifies processing by handling a unified block of text, enhancing the accuracy and efficiency of content management.
-  To update this content using merge conflict-style blocks, we might propose changes as follows:
-```markdown
-<<<<<<< HEAD
-console.log("This is the original text.");
-=======
-console.log("This is the updated text.");
->>>>>>> update-1
-<<<<<<< HEAD
-console.log("Another original text.");
-=======
-console.log("This is another updated text.");
->>>>>>> update-2
-```
+- To edit file contents use replaceTextInSection, it uses a merge conflict-style text mergeText argument for modifications, which encompasses the entire content that needs changes.
+- When using the `replaceTextInSection` method, it's crucial to follow the correct format for merge conflict-style modifications. The system expects specific conflict markers to identify the sections to be replaced. Here's a detailed guide on how to format the merge text correctly:
 
+#### 1. **Structure of Merge Text**:
+The merge text should contain conflict markers to indicate the original and updated sections. The format is as follows:
+<<<<<<< HEAD
+[Original content]
+=======
+[Updated content]
+>>>>>>> [update-label]
+ 
+#### 2. **Components Explained**:
+- `<<<<<<< HEAD`: This marks the beginning of the original content.
+- `[Original content]`: This is the current content in the file that you want to replace.
+- `=======`: This separates the original content from the updated content.
+- `[Updated content]`: This is the new content you want to add to the file.
+- `>>>>>>> [update-label]`: This marks the end of the updated content and includes a label to identify the update.
+
+#### 3. **Example**:
+Original Content of config.txt:
+server_url=http://localhost:3000
+database_name=mydb
+
+Merge Text:
+{
+"filePath": "./config.txt",
+"mergeText": "<<<<<<< HEAD\nserver_url=http://localhost:3000\ndatabase_name=mydb\n=======\nserver_url=http://localhost:4000\ndatabase_name=newdb\n>>>>>>> update-1"
+}
+
+#### 4. Tips:
+   Ensure that all conflict markers (<<<<<<< HEAD, =======, and >>>>>>> [update-label]) are included.
+   Maintain the exact original content within the HEAD section.
+   Clearly separate the original and updated content with the ======= marker.
+   Label your update appropriately in the >>>>>>> marker to track changes easily.
 
 2. **Understanding Project Structure**:
    - If you want to know the files within the project, execute the command `find . -not -path './node_modules/*'` at the start of your session. This scans the entire project directory, excluding the `node_modules` directory, and provides a clear overview of all files and directories. Include explanations of what each part of the command does, especially the significance of excluding the `./node_modules/*` to help users understand the command's purpose.
