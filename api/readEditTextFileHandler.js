@@ -78,7 +78,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
  *                 description: Path to the file to be edited
  *               mergeText:
  *                 type: string
- *                 description: parameter text containing merge conflict-style modifications for the file
+ *                 description: parameter text containing merge conflict-style modifications for the file using <<<<<<< HEAD\nold content\n=======\nnew content\n>>>>>>> change label
  *     responses:
  *       200:
  *         description: File modification was successful

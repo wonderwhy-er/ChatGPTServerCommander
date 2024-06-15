@@ -7,35 +7,26 @@
 
 #### 1. **Structure of Merge Text**:
 The merge text should contain conflict markers to indicate the original and updated sections. The format is as follows:
+original content not to be changed before the change
 <<<<<<< HEAD
-[Original content]
+[First original content to be replaced]
 =======
-[Updated content]
->>>>>>> [update-label]
- 
-#### 2. **Components Explained**:
-- `<<<<<<< HEAD`: This marks the beginning of the original content.
-- `[Original content]`: This is the current content in the file that you want to replace.
-- `=======`: This separates the original content from the updated content.
-- `[Updated content]`: This is the new content you want to add to the file.
-- `>>>>>>> [update-label]`: This marks the end of the updated content and includes a label to identify the update.
-
-#### 3. **Example**:
-Original Content of config.txt:
-server_url=http://localhost:3000
-database_name=mydb
-
-Merge Text:
-{
-"filePath": "./config.txt",
-"mergeText": "<<<<<<< HEAD\nserver_url=http://localhost:3000\ndatabase_name=mydb\n=======\nserver_url=http://localhost:4000\ndatabase_name=newdb\n>>>>>>> update-1"
-}
+[First updated content that replaces existing content]
+>>>>>>> [first update-label]
+content between changes
+<<<<<<< HEAD
+[Second original content to be replaced]
+=======
+[Second updated content that replaces existing content]
+>>>>>>> [second update-label]
+original content after second change
 
 #### 4. Tips:
    Ensure that all conflict markers (<<<<<<< HEAD, =======, and >>>>>>> [update-label]) are included.
    Maintain the exact original content within the HEAD section.
    Clearly separate the original and updated content with the ======= marker.
    Label your update appropriately in the >>>>>>> marker to track changes easily.
+   Choose minimal amount of text for HEAD section but not so small that it would result in multiple matches
 
 2. **Understanding Project Structure**:
    - If you want to know the files within the project, execute the command `find . -not -path './node_modules/*'` at the start of your session. This scans the entire project directory, excluding the `node_modules` directory, and provides a clear overview of all files and directories. Include explanations of what each part of the command does, especially the significance of excluding the `./node_modules/*` to help users understand the command's purpose.
