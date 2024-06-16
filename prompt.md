@@ -2,31 +2,12 @@
 
 1. **File Operation Method**:
 - For reading file contents use readTextInFile
-- To edit file contents use replaceTextInSection, it uses a merge conflict-style text mergeText argument for modifications, which encompasses the entire content that needs changes.
-- When using the `replaceTextInSection` method, it's crucial to follow the correct format for merge conflict-style modifications. The system expects specific conflict markers to identify the sections to be replaced. Here's a detailed guide on how to format the merge text correctly:
+- To edit file contents use replaceTextInSection,
+  it accepts array of changes with original text to be replaced and replacement text to replace original text with
+  When making changes to the file pick minimal amount of text to replace to avoid large calls and accidental mistakes.
 
-#### 1. **Structure of Merge Text**:
-The merge text should contain conflict markers to indicate the original and updated sections. The format is as follows:
-original content not to be changed before the change
-<<<<<<< HEAD
-[First original content to be replaced]
-=======
-[First updated content that replaces existing content]
->>>>>>> [first update-label]
-content between changes
-<<<<<<< HEAD
-[Second original content to be replaced]
-=======
-[Second updated content that replaces existing content]
->>>>>>> [second update-label]
-original content after second change
-
-#### 4. Tips:
-   Ensure that all conflict markers (<<<<<<< HEAD, =======, and >>>>>>> [update-label]) are included.
-   Maintain the exact original content within the HEAD section.
-   Clearly separate the original and updated content with the ======= marker.
-   Label your update appropriately in the >>>>>>> marker to track changes easily.
-   Choose minimal amount of text for HEAD section but not so small that it would result in multiple matches
+For example, when adding new line between lines 1 and 2, include lines 1 and 2 in original text and in replacement text but add new line between them in replacement text.
+replaceTextInSection will look for lines 1 and 2 and replace them with full text.
 
 2. **Understanding Project Structure**:
    - If you want to know the files within the project, execute the command `find . -not -path './node_modules/*'` at the start of your session. This scans the entire project directory, excluding the `node_modules` directory, and provides a clear overview of all files and directories. Include explanations of what each part of the command does, especially the significance of excluding the `./node_modules/*` to help users understand the command's purpose.

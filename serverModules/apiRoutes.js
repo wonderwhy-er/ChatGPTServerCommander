@@ -21,7 +21,7 @@ module.exports = {
 
             next();
         });
-        const readEditTextFileHandler = require('../api/readEditTextFileHandler')(getURL);
+        const readEditTextFileHandler = require('../api/readEditTextFile2Handler')(getURL);
         app.get('/api/runTerminalScript', terminalHandler);
 
         app.post('/api/apps', createAppHandlerWithUrl(getURL));

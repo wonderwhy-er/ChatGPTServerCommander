@@ -10,5 +10,3 @@
    - Ensure `createAppInFirestore` in `firebaseDB.js` is adapted to store HTML strings.
 - [ ] **Frontend Modifications** (if applicable):
    - Update frontend submissions to the `createApp` endpoint.
-- [ ] **Comprehensive Testing**:
-   - Thoroughly test the create operation with the new HTML string parameters.

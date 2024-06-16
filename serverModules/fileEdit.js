@@ -16,50 +16,65 @@ const expandToFullLines = (fileContent, startIndex, endIndex) => {
     return { startIndex, endIndex };
 };
 
-module.exports = async (fileContent, requestBody) => {
-    const conflictText = requestBody.mergeText || '';
+const parseConflicts = (conflictText) => {
     const conflicts = conflictText.match(conflictDelimiterRegex) || [];
+    return conflicts.map(conflict => {
+        const parts = conflict.split("=======");
+        const originalText = parts[0].replace(/<<<<<<< HEAD\n/, "");
+        const replacementText = parts[1].replace(/\n>>>>>>> [\w-]+/, "");
+        return { originalText, replacementText };
+    });
+};
 
-    if (conflicts.length > 0) {
-        let unsuccessfulReplacements = [];
-        let fuzzyReplacements = [];
-        conflicts.forEach(conflict => {
-            const parts = conflict.split("=======");
-            const originalText = parts[0].replace(/<<<<<<< HEAD\n/, "");
-            const replacementText = parts[1].replace(/\n>>>>>>> [\w-]+/, "");
+const applyReplacements = async (fileContent, replacements) => {
+    let unsuccessfulReplacements = [];
+    let fuzzyReplacements = [];
 
-            let startIndex = fileContent.indexOf(originalText);
-            let endIndex = startIndex + originalText.length;
-            const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
-            startIndex = adjusted.startIndex;
-            endIndex = adjusted.endIndex;
+    replacements.forEach(({ originalText, replacementText }) => {
+        let startIndex = fileContent.indexOf(originalText);
+        let endIndex = startIndex + originalText.length;
+        const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
+        startIndex = adjusted.startIndex;
+        endIndex = adjusted.endIndex;
 
-            const startCounts = fileContent.split(originalText).length - 1;
+        const startCounts = fileContent.split(originalText).length - 1;
 
-
-            if (originalText!=="" && startCounts > 1) {
-                unsuccessfulReplacements.push(`Multiple occurrences found for text: '${originalText}' found ${startCounts} times`);
-                return;
-            } else if (startIndex < 0) {
-                const fuzzyResult = recursiveFuzzyIndexOf(fileContent, originalText);
-                if (fuzzyResult.distance / originalText.length < 0.3) {
-                    const adjusted = expandToFullLines(fileContent, fuzzyResult.start, fuzzyResult.end);
-                    fuzzyResult.start = adjusted.startIndex;
-                    fuzzyResult.end = adjusted.endIndex;
-                    fuzzyReplacements.push(`Fuzzy replacement, searched for ${originalText}, found ${fuzzyResult.value}`)
-                    fileContent = fileContent.substring(0, fuzzyResult.start) + replacementText + fileContent.substring(fuzzyResult.end);
-                } else {
-                    unsuccessfulReplacements.push(`Text not found: '${originalText}'`);
-                }
-                return;
+        if (originalText !== "" && startCounts > 1) {
+            unsuccessfulReplacements.push(`Multiple occurrences found for text: '${originalText}' found ${startCounts} times`);
+            return;
+        } else if (startIndex < 0) {
+            const fuzzyResult = recursiveFuzzyIndexOf(fileContent, originalText);
+            if (fuzzyResult.distance / originalText.length < 0.3) {
+                const adjusted = expandToFullLines(fileContent, fuzzyResult.start, fuzzyResult.end);
+                fuzzyResult.start = adjusted.startIndex;
+                fuzzyResult.end = adjusted.endIndex;
+                fuzzyReplacements.push(`Fuzzy replacement, searched for ${originalText}, found ${fuzzyResult.value}`)
+                fileContent = fileContent.substring(0, fuzzyResult.start) + replacementText + fileContent.substring(fuzzyResult.end);
+            } else {
+                unsuccessfulReplacements.push(`Text not found: '${originalText}'`);
             }
+            return;
+        }
 
-            fileContent = fileContent.substring(0, startIndex) + replacementText + fileContent.substring(endIndex);
-        });
+        fileContent = fileContent.substring(0, startIndex) + replacementText + fileContent.substring(endIndex);
+    });
 
-        return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements };
-    } if(conflictText.length > 0) {
-        throw new Error('mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again')
+    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements };
+};
+
+const mergeText = async (fileContent, replacements) => {
+    if (replacements.length > 0) {
+        return await applyReplacements(fileContent, replacements);
+    } else {
+        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [] };
     }
-    return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [] };
-}
+};
+
+module.exports = {
+    applyReplacements,
+    mergeText,
+    parseConflicts,
+};
+
+
+

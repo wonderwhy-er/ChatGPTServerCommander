@@ -4,15 +4,15 @@ const { stringifyError } = require("../serverModules/stringifyError");
 const {log} = require("../serverModules/logger");
 const {createToken} = require("../serverModules/fileAccessHandler");
 const {getCurrentDirectory} = require("./terminal");
-const fileEdit = require('../serverModules/fileEdit');
+const {mergeText, parseConflicts} = require('../serverModules/fileEdit');
 
-const replaceTextInSection = async (filePath, requestBody) => {
+const replaceTextInSection = async (filePath, replacements) => {
     let fileHandle;
     let fileContent = '';
 
     // Check if the file exists only when replacements are empty
-    if ((!requestBody.mergeText || requestBody.mergeText.length === 0) && !fs.existsSync(filePath)) {
-        throw new Error('File does not exist, if you want to create it ask for initial content and all again.'); // File does not exist and no replacements specified, so do nothing
+    if ((!replacements || replacements.length === 0) && !fs.existsSync(filePath)) {
+        throw new Error('File does not exist, if you want to create it ask for initial content and try again.'); // File does not exist and no replacements specified, so do nothing
     }
 
     try {
@@ -25,7 +25,7 @@ const replaceTextInSection = async (filePath, requestBody) => {
     }
 
 
-    const result = await fileEdit(fileContent, requestBody);
+    const result = await mergeText(fileContent, replacements);
 
     await fs.promises.writeFile(filePath, result.updatedContent);
 
@@ -115,7 +115,19 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
 
     filePath = (await getCurrentDirectory()) + '/' + filePath;
     try {
-        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, body);
+
+        let replacements;
+        if (body.mergeText) {
+            replacements = parseConflicts(body.mergeText);
+
+            if (replacements.length === 0 && body.mergeText.length > 0) {
+                throw new Error('mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again')
+            }
+        } else {
+            replacements = body.replacements;
+        }
+
+        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, replacements);
 
         const url = createToken(getURL, filePath);
         let responseMessage = `
