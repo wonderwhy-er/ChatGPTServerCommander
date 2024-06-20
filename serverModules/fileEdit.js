@@ -33,9 +33,9 @@ const applyReplacements = async (fileContent, replacements) => {
     replacements.forEach(({ originalText, replacementText }) => {
         let startIndex = fileContent.indexOf(originalText);
         let endIndex = startIndex + originalText.length;
-        const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
+        /*const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
         startIndex = adjusted.startIndex;
-        endIndex = adjusted.endIndex;
+        endIndex = adjusted.endIndex;*/
 
         const startCounts = fileContent.split(originalText).length - 1;
 
