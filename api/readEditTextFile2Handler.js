@@ -136,7 +136,7 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             replacements = body.replacements || [];
         }
 
-        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements } = await replaceTextInSection(filePath, replacements);
+        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements, originalContent } = await replaceTextInSection(filePath, replacements);
 
         const url = createToken(getURL, filePath);
         let responseMessage = `
@@ -150,22 +150,28 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         if (filePath.endsWith('.js')) {
             let issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
-                responseMessage += 'Issues found in the file: \n' + JSON.stringify(issues);
+                await fs.promises.writeFile(filePath, originalContent);
+                responseMessage += "\nFile reverted to original form before changes";
+                responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
+                responseMessage+= `\nFile content after change: ${updatedContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
                 res.status(400).send(responseMessage);
                 return;
             }
         }
 
         if (unsuccessfulReplacements.length > 0) {
+            await fs.promises.writeFile(filePath, originalContent);
             let unsuccessfulMessages = unsuccessfulReplacements.join("; ");
             responseMessage += `\nUnsuccessful replacements due to missing texts: ${unsuccessfulMessages}`;
+            responseMessage += `\nFile reverted to original version before changes`;
+            if (replacements.length > unsuccessfulReplacements.length) {
+                responseMessage += `\n${replacements.length - unsuccessfulReplacements.length} replacements were successful do them first, then try fixing failing ones in separate request`;
+            }
             res.status(400).send(responseMessage);
             return;
         }
 
         responseMessage+= `\nFile content: ${updatedContent}`;
-
-        // Include information about unsuccessful replacements, if any
 
         res.type('text/plain').send(responseMessage);
     } catch (error) {

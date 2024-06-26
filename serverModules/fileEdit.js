@@ -33,9 +33,9 @@ const applyReplacements = async (fileContent, replacements) => {
     replacements.forEach(({ originalText, replacementText }) => {
         let startIndex = fileContent.indexOf(originalText);
         let endIndex = startIndex + originalText.length;
-        /*const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
+        const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
         startIndex = adjusted.startIndex;
-        endIndex = adjusted.endIndex;*/
+        endIndex = adjusted.endIndex;
 
         const startCounts = fileContent.split(originalText).length - 1;
 
@@ -59,14 +59,14 @@ const applyReplacements = async (fileContent, replacements) => {
         fileContent = fileContent.substring(0, startIndex) + replacementText + fileContent.substring(endIndex);
     });
 
-    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements };
+    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements, originalContent: fileContent };
 };
 
 const mergeText = async (fileContent, replacements) => {
     if (replacements.length > 0) {
         return await applyReplacements(fileContent, replacements);
     } else {
-        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [] };
+        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [], originalContent: fileContent };
     }
 };
 
