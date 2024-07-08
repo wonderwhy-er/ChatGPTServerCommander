@@ -3,48 +3,54 @@ const { createAppInFirestore } = require('../serverModules/firebaseDB');
 
 /**
  * @openapi
- * /api/apps:
- *   post:
- *     summary: Create a web application
- *     description: Used to create web applications out of title, description, external resources and internal blocks.
- *     operationId: createApp
-
-     requestBody:
-       required: true
-       content:
-         application/json:
-           schema:
-             type: object
-             properties:
-               name:
-                 type: string
-                 description: Name of the application
-               description:
-                 type: string
-                 description: Description of the application
-               headHtml:
-                 type: string
-                 description: HTML content for the head section
-               bodyHtml:
-                 type: string
-                 description: HTML content for the body section
- *       200:
- *         description: Application created successfully
+ * paths:
+ *   /api/apps:
+ *     post:
+ *       summary: Create a web application
+ *       description: Used to create web applications out of title, description, external resources and internal blocks.
+ *       operationId: createApp
+ *       requestBody:
+ *         required: true
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 content:
+ *                 name:
  *                   type: string
- *                   description: Success message with ids and urls
- *       500:
- *         description: Internal Server Error
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               description: Error message
+ *                   description: Name of the application
+ *                 description:
+ *                   type: string
+ *                   description: Description of the application
+ *                 headHtml:
+ *                   type: string
+ *                   description: HTML content for the head section
+ *                   example: "<meta charset='UTF-8'>"
+ *                 bodyHtml:
+ *                   type: string
+ *                   description: HTML content for the body section
+ *                   example: "<h1>Welcome to the Application</h1>"
+ *               required:
+ *                 - name
+ *                 - description
+ *       responses:
+ *         '200':
+ *           description: Application created successfully
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   content:
+ *                     type: string
+ *                     description: Success message with ids and urls
+ *         '500':
+ *           description: Internal Server Error
+ *           content:
+ *             text/plain:
+ *               schema:
+ *                 type: string
+ *                 description: Error message
  */
 module.exports = (getServerUrl) => {
   return async (req, res) => {
