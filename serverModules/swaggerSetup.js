@@ -3,7 +3,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
     definition: {
-        openapi: '3.0.1', // OpenAPI spec version
+        openapi: '3.1.0', // OpenAPI spec version
         info: {
             title: 'Terminal for ChatGPT', // Title of your API
             version: '1.0.0', // Version of your API
