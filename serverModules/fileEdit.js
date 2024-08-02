@@ -27,6 +27,7 @@ const parseConflicts = (conflictText) => {
 };
 
 const applyReplacements = async (fileContent, replacements) => {
+    let originalContent = fileContent;
     let unsuccessfulReplacements = [];
     let fuzzyReplacements = [];
 
@@ -59,14 +60,14 @@ const applyReplacements = async (fileContent, replacements) => {
         fileContent = fileContent.substring(0, startIndex) + replacementText + fileContent.substring(endIndex);
     });
 
-    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements, originalContent: fileContent };
+    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements, originalContent: originalContent };
 };
 
 const mergeText = async (fileContent, replacements) => {
     if (replacements.length > 0) {
         return await applyReplacements(fileContent, replacements);
     } else {
-        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [], originalContent: fileContent };
+        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [], originalContent: fileContent, };
     }
 };
 
