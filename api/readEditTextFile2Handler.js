@@ -154,10 +154,12 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             let issues = await checkJavaScriptFile(filePath);
             if (issues.length > 0) {
                 await fs.promises.writeFile(filePath, originalContent);
+                responseMessage += "\nError was encountered during edit. Try again.";
                 responseMessage += "\nFile reverted to original form before changes";
                 responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
+                responseMessage+= `\nFile content before change: ${originalContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
                 responseMessage+= `\nFile content after change: ${updatedContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
-                res.status(400).send(responseMessage);
+                res.type('text/plain').send(responseMessage);
                 return;
             }
         }
@@ -165,12 +167,13 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         if (unsuccessfulReplacements.length > 0) {
             await fs.promises.writeFile(filePath, originalContent);
             let unsuccessfulMessages = unsuccessfulReplacements.join("; ");
+            responseMessage += "\nError was encountered during edit. Try again.";
             responseMessage += `\nUnsuccessful replacements due to missing texts: ${unsuccessfulMessages}`;
             responseMessage += `\nFile reverted to original version before changes`;
             if (replacements.length > unsuccessfulReplacements.length) {
                 responseMessage += `\n${replacements.length - unsuccessfulReplacements.length} replacements were successful do them first, then try fixing failing ones in separate request`;
             }
-            res.status(400).send(responseMessage);
+            res.type('text/plain').send(responseMessage);
             return;
         }
 
