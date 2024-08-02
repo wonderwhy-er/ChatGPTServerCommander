@@ -11,7 +11,6 @@ This is the ChatGPT Server Commander project, an Express-based application desig
 ## Work in progress
 
 - add auto generation of API schema with swagger
-- improve running on server with its own ip/domain without local domain
 
 ## Installation
 

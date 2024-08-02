@@ -122,7 +122,10 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         body = req.body; // Use the full request body for POST requests
     }
 
-    filePath = (await getCurrentDirectory()) + '/' + filePath;
+    const currentDir = await getCurrentDirectory();
+    if (!filePath.startsWith(currentDir)) {
+        filePath = currentDir + '/' + filePath;
+    }
     try {
 
         let replacements;
