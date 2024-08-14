@@ -24,16 +24,16 @@ npm install
 
 **Setup Instructions**
 
-- It's recommended to install pm2 to manage the process, as it will automatically restart the server if it crashes.
-- Start the server with:
+1. It's recommended to install pm2 to manage the process, as it will automatically restart the server if it crashes.
+2. Start the server with:
 
 ```bash
 npm run start
 ```
-- On the first run, the setup process will guide you through configuring the port, determining whether it runs locally or on a server, and setting the domain.
-- The setup will generate a secret key for use in CustomGPT.
-- Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: `https://appcookbook.wonderwhy-er.com/openapi.json`.
-- Also add prompt to custom gpt from [prompt.md](./prompt.md)
+3. On the first run, the setup process will guide you through configuring the port, determining whether it runs locally or on a server, and setting the domain.
+4. The setup will generate a secret key for use in CustomGPT.
+5. Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: `https://appcookbook.wonderwhy-er.com/openapi.json`.
+6. Also add prompt to custom gpt from [prompt.md](./prompt.md)
 For more detailed instructions, please refer to the setup video (TODO: Add video).
 
 ## Contributing
