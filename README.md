@@ -1,22 +1,40 @@
 # ChatGPT Server Commander
 
-This is the ChatGPT Server Commander project, an Express-based application designed for exposing to Custom ChatGPT  server commands as an action
+This project is a server that exposes terminal commands and file editing functionality as an API for ChatGPT Actions. In essence, it allows you to control any machine where you install this with ChatGPT. Install, run, and edit things.
 
 ## Features
 
 - Execute server commands through a REST API that is compatible with Custom ChatGPT actions
 - Interface with external APIs and services.
-- Local Tunnel integration for easy access to server running on local machine
+- Local Tunnel integration for easy access to the server running on a local machine, making the API accessible to ChatGPT.
 
-## Work in progress
+## Work in Progress
 
-- add auto generation of API schema with swagger
+- Auto-generation of API schema with Swagger is in progress. For a detailed to-do list, please refer to [todo.md](./todo.md).
 
-## Installation
+## Requirements/Installation
+
+- Node.js v14+
 
 To install the project dependencies, run:
 
+```bash
 npm install
+```
+
+**Setup Instructions**
+
+- It's recommended to install pm2 to manage the process, as it will automatically restart the server if it crashes.
+- Start the server with:
+
+```bash
+npm run start
+```
+- On the first run, the setup process will guide you through configuring the port, determining whether it runs locally or on a server, and setting the domain.
+- The setup will generate a secret key for use in CustomGPT.
+- Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: `https://appcookbook.wonderwhy-er.com/openapi.json`.
+- Also add prompt to custom gpt from [prompt.md](./prompt.md)
+For more detailed instructions, please refer to the setup video (TODO: Add video).
 
 ## Usage
 

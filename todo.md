@@ -15,3 +15,9 @@
 1. creates duplicate code, how to catch and error? better fix?
 3. read operation errors out, on error writing we should revert, inform chat gpt about it
 4. may be we should not error but instruct back that error happend and what it was
+5. sometimes it puts incomplete text in replace, improve prompting to explain how it works
+6. Sometimes when targeted replace fails it proposes whole file rewrite, add a method?
+7. It also often wants to replace by function name, allow such method?
+8. Feels like we could want to use AST? Replace constants/functions/classes? Class methods? We want something like xpath for css/js
+9. When you need to replace things that are multiple times in a file, better prompt of how to work around in that situation, actually, return multiple occurances and nearby lines, and lines so AI does not need to do additional call to figure out which one to change
+10. add https://github.com/beautifier/js-beautify to beautyfy js/css/html files after ai edit
