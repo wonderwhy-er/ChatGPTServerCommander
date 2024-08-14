@@ -36,17 +36,14 @@ npm run start
 - Also add prompt to custom gpt from [prompt.md](./prompt.md)
 For more detailed instructions, please refer to the setup video (TODO: Add video).
 
-## Usage
-
-Start the server by running:
-
-npm start
-
-Access the Swagger API documentation at .
-
 ## Contributing
 
 Contributions to the Server Commander project are welcome.
+I did not put in work yet to make it easy to contribute but I will if I see interest in that.
+
+Feel free to reach out to me on LinkedIn https://www.linkedin.com/in/eduardruzga/
+Or Discord https://discord.com/channels/wonderwhyer
+Or Twitter/X https://x.com/wonderwhy_er
 
 ## License
 
