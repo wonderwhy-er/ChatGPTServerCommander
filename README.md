@@ -1,5 +1,5 @@
 # ChatGPT Server Commander
-<img src="logo.png" width="350pxp" height="350px"/>
+<img src="logo2.png" width="350pxp" height="350px"/>
 This project is a server that exposes terminal commands and file editing functionality as an API for ChatGPT Actions. In essence, it allows you to control any machine where you install this with ChatGPT. Install, run, and edit things.
 
 ## Features
