@@ -1,6 +1,6 @@
 const {terminalHandler, interruptHandler} = require('../api/terminal');
 
-const createAppHandlerWithUrl = require('../api/firebase'); // Modify import to pass getURL function
+//const createAppHandlerWithUrl = require('../api/firebase'); // Modify import to pass getURL function
 const exitApplicationHandler = require('../api/exitApplicationHandler');
 const {initDB} = require("./firebaseDB");
 
@@ -23,7 +23,7 @@ module.exports = {
         });
         const readEditTextFileHandler = require('../api/readEditTextFile2Handler')(getURL);
         app.get('/api/runTerminalScript', terminalHandler);
-        const createAppHandler = createAppHandlerWithUrl(getURL);
+        //const createAppHandler = createAppHandlerWithUrl(getURL);
         app.route('/api/apps')
               .post(createAppHandler)
               .get(createAppHandler); // Add support for GET requests
