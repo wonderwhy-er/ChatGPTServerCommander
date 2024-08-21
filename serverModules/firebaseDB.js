@@ -4,7 +4,7 @@ let serviceAccount;
 try {
   serviceAccount = require('../firebaseAdmin.json');
 } catch(e) {
-  console.error(e);
+  //console.error(e);
 }
 
 let db;
