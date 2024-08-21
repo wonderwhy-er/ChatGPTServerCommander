@@ -34,6 +34,7 @@ npm run start
 4. The setup will generate a secret key for use in CustomGPT.
 5. Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: `https://appcookbook.wonderwhy-er.com/openapi.json`.
 6. Also add prompt to custom gpt from [prompt.md](./prompt.md)
+
 For more detailed instructions, please refer to the setup video (TODO: Add video).
 
 ## Contributing
