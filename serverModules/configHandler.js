@@ -1,6 +1,6 @@
 // Configuration Handler
 const fs = require('fs');
-const inquirer = require('inquirer');
+const inquirer = require('inquirer').default;
 const crypto = require('crypto');
 
 const configFilePath = './config.json';
