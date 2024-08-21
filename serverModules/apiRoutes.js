@@ -23,10 +23,10 @@ module.exports = {
         });
         const readEditTextFileHandler = require('../api/readEditTextFile2Handler')(getURL);
         app.get('/api/runTerminalScript', terminalHandler);
-        //const createAppHandler = createAppHandlerWithUrl(getURL);
+        /*const createAppHandler = createAppHandlerWithUrl(getURL);
         app.route('/api/apps')
               .post(createAppHandler)
-              .get(createAppHandler); // Add support for GET requests
+              .get(createAppHandler); // Add support for GET requests*/
         app.get('/api/server-url', require('../api/getServerUrlHandler')(getURL));
         app.get('/api/logs', require('../api/getLogsHandler'));
         app.post('/api/restart', exitApplicationHandler(close));
