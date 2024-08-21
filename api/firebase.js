@@ -2,7 +2,7 @@ const express = require('express');
 const { createAppInFirestore, getFirebaseAppByPrivateId } = require('../serverModules/firebaseDB');
 
 /**
- * @openapi
+ * //@openapi
  * ---
  * /api/apps:
  *   post:
