@@ -14,7 +14,7 @@ This project is a server that exposes terminal commands and file editing functio
 
 ## Requirements/Installation
 
-- Node.js v14+
+- Node.js v18+
 
 To install the project dependencies, run:
 

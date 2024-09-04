@@ -20,6 +20,7 @@
     "firebase-admin": "^12.3.1",
     "inquirer": "^10.1.8",
     "localtunnel": "^2.0.2",
+    "marked": "^14.1.1",
     "simple-git": "^3.24.0",
     "socket.io": "^4.7.4",
     "swagger-autogen": "^2.23.7",

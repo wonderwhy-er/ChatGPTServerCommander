@@ -9,6 +9,8 @@ const {log, getLog} = require("./logger");
 const {initTunnel} = require("./setupTunnel");
 const {initDB} = require("./firebaseDB");
 const {viewAppHandler, editAppHandler} = require("../api/firebaseAppHandlers");
+const fs = require('fs');
+const marked = require('marked');
 
 module.exports = async () => {
     log('start');
@@ -22,11 +24,27 @@ module.exports = async () => {
     log('serving static from', path.join(__dirname, '..', 'public'));
     expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
-    openapiSpecification(expressApp);
+// Render README.md at the root route ('/')
+
+
+openapiSpecification(expressApp);
     const {viewAppHandler, editAppHandler} = require('../api/firebaseAppHandlers');
     expressApp.get('/api/apps/view/:public_id', viewAppHandler);
     expressApp.get('/api/apps/edit/:private_id', editAppHandler);
     expressApp.get('/access/:token', require('./fileAccessHandler').retrieveFile);
+
+    expressApp.get('/', (req, res) => {
+        const readmePath = path.join(__dirname, '..', 'README.md');
+        fs.readFile(readmePath, 'utf8', (err, data) => {
+            if (err) {
+                res.status(500).send('Error reading README.md');
+                return;
+            }
+const htmlContent = marked.parse(data);
+            res.send(`<html><body>${htmlContent}</body></html>`);  // Send HTML response
+        });
+    });
+
     expressApp.use(require('./auth.js')(log, config));
 
     let serverUrl = config.productionDomain;
