@@ -1,5 +1,5 @@
 # ChatGPT Server Commander
-<img src="logo4.png" width="350pxp" height="350px"/>
+<img src="https://raw.githubusercontent.com/wonderwhy-er/ChatGPTServerCommander/main/logo4.png" width="350pxp" height="350px"/>
 This project is a server that exposes terminal commands and file editing functionality as an API for ChatGPT Actions. In essence, it allows you to control any machine where you install this with ChatGPT. Install, run, and edit anything, even itself.
 
 ## Features
@@ -32,7 +32,7 @@ npm run start
 ```
 3. On the first run, the setup process will guide you through configuring the port, determining whether it runs locally or on a server, and setting the domain.
 4. The setup will generate a secret key for use in CustomGPT.
-5. Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: `https://appcookbook.wonderwhy-er.com/openapi.json`.
+5. Finally, create a CustomGPT and add your URL to the generated OpenAPI spec, similar to this format: [openapi.json](/openapi.json).
 6. Also add prompt to custom gpt from [prompt.md](./prompt.md)
 
 For more detailed instructions, please refer to the setup video (TODO: Add video).
