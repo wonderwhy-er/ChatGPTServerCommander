@@ -13,7 +13,7 @@ const expandToFullLines = (fileContent, startIndex, endIndex) => {
         endIndex++;
     }
 
-    return { startIndex, endIndex };
+    return {startIndex, endIndex};
 };
 
 const parseConflicts = (conflictText) => {
@@ -22,16 +22,26 @@ const parseConflicts = (conflictText) => {
         const parts = conflict.split("=======");
         const originalText = parts[0].replace(/<<<<<<< HEAD\n/, "");
         const replacementText = parts[1].replace(/\n>>>>>>> [\w-]+/, "");
-        return { originalText, replacementText };
+        return {originalText, replacementText};
     });
 };
 
 const applyReplacements = async (fileContent, replacements) => {
     let originalContent = fileContent;
+    let responseMessage = '';
     let unsuccessfulReplacements = [];
     let fuzzyReplacements = [];
 
-    replacements.forEach(({ originalText, replacementText }) => {
+    replacements.forEach(({originalText, replacementText}) => {
+        // Initialize occurrences array
+        let occurrences = [];
+        let index = fileContent.indexOf(originalText);
+
+        // Loop to find all occurrences of the originalText
+        while (index !== -1) {
+            occurrences.push(index);
+            index = fileContent.indexOf(originalText, index + originalText.length);
+        }
         let startIndex = fileContent.indexOf(originalText);
         let endIndex = startIndex + originalText.length;
         const adjusted = expandToFullLines(fileContent, startIndex, endIndex);
@@ -41,7 +51,15 @@ const applyReplacements = async (fileContent, replacements) => {
         const startCounts = fileContent.split(originalText).length - 1;
 
         if (originalText !== "" && startCounts > 1) {
-            unsuccessfulReplacements.push(`Multiple occurrences found for text: '${originalText}' found ${startCounts} times`);
+            let linesAroundOccurrences = occurrences.map((startIndex, i) => {
+                const surroundingText = extractLinesAroundOccurrence(fileContent, startIndex, startIndex + originalText.length);
+                // Add line numbers to each line
+                let lineStart = fileContent.lastIndexOf('\n', startIndex) + 1;
+                let lineNumber = fileContent.substring(0, lineStart).split('\n').length;
+                const numberedLines = surroundingText.split('\n').map((line, idx) => `${lineNumber + idx}: ${line}`).join('\n');
+                return `Occurrence number ${i + 1}:\n${numberedLines}`;
+            });
+            unsuccessfulReplacements.push(`Multiple occurrences found for text: '${originalText}' found ${startCounts} times. Occurrences found around these lines:\n${linesAroundOccurrences.join('\n---\n')}`);
             return;
         } else if (startIndex < 0) {
             const fuzzyResult = recursiveFuzzyIndexOf(fileContent, originalText);
@@ -60,15 +78,39 @@ const applyReplacements = async (fileContent, replacements) => {
         fileContent = fileContent.substring(0, startIndex) + replacementText + fileContent.substring(endIndex);
     });
 
-    return { updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements, originalContent: originalContent };
+    return {updatedContent: fileContent, unsuccessfulReplacements, fuzzyReplacements, originalContent: originalContent};
 };
 
 const mergeText = async (fileContent, replacements) => {
     if (replacements.length > 0) {
         return await applyReplacements(fileContent, replacements);
     } else {
-        return { updatedContent: fileContent, unsuccessfulReplacements: [], fuzzyReplacements: [], originalContent: fileContent, };
+        return {
+            updatedContent: fileContent,
+            unsuccessfulReplacements: [],
+            fuzzyReplacements: [],
+            originalContent: fileContent,
+        };
     }
+};
+
+const extractLinesAroundOccurrence = (fileContent, startIndex, endIndex, numSurroundingLines = 2) => {
+    let startLineBreak = startIndex;
+    let endLineBreak = endIndex;
+
+    // Move backwards to find preceding lines
+    for (let i = 0; i < numSurroundingLines; i++) {
+        startLineBreak = fileContent.lastIndexOf('\n', startLineBreak - 1);
+        if (startLineBreak === -1) break; // Stop if we reach the beginning
+    }
+
+    // Move forwards to find succeeding lines
+    for (let i = 0; i < numSurroundingLines; i++) {
+        endLineBreak = fileContent.indexOf('\n', endLineBreak + 1);
+        if (endLineBreak === -1) break; // Stop if we reach the end
+    }
+
+    return fileContent.substring(startLineBreak + 1, endLineBreak + 1);
 };
 
 module.exports = {
