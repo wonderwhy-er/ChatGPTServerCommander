@@ -1,7 +1,7 @@
 const fs = require('fs');
-const { checkJavaScriptFile } = require('../serverModules/checkjs');
+const {checkJavaScriptFile} = require('../serverModules/checkjs');
 const beautify = require('js-beautify').js;
-const { stringifyError } = require("../serverModules/stringifyError");
+const {stringifyError} = require("../serverModules/stringifyError");
 const {log} = require("../serverModules/logger");
 const {createToken} = require("../serverModules/fileAccessHandler");
 const {getCurrentDirectory} = require("./terminal");
@@ -117,7 +117,7 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
 
     if (req.method === 'GET') {
         filePath = req.query.filePath; // Get the file path from query parameters
-        body = { filePath }; // Mimic the structure expected by replaceTextInSection
+        body = {filePath}; // Mimic the structure expected by replaceTextInSection
     } else if (req.method === 'POST') {
         filePath = req.body.filePath; // Get the file path from request body
         body = req.body; // Use the full request body for POST requests
@@ -140,7 +140,12 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             replacements = body.replacements || [];
         }
 
-        let { updatedContent, unsuccessfulReplacements, fuzzyReplacements, originalContent } = await replaceTextInSection(filePath, replacements);
+        let {
+            updatedContent,
+            unsuccessfulReplacements,
+            fuzzyReplacements,
+            originalContent
+        } = await replaceTextInSection(filePath, replacements);
 
         const url = createToken(getURL, filePath);
         let responseMessage = `
@@ -152,27 +157,15 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         }
 
         if (filePath.endsWith('.js')) {
+            debugger;
             let issues = await checkJavaScriptFile(filePath);
-if (issues.length > 0) {
-        await fs.promises.writeFile(filePath, originalContent);
-        responseMessage += "\nError happened, explain it to user";
-        responseMessage += "\nFile reverted to original form before changes";
-        responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
-        responseMessage += `\nFile content before change: ${originalContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
-        responseMessage += `\nFile content after change: ${updatedContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
-        log('responseMessage', responseMessage);
-        res.status(400).send(responseMessage);
-        return;
-    } else {
-        const beautifiedContent = beautify(updatedContent, { indent_size: 2, space_in_paren: true });
-        await fs.promises.writeFile(filePath, beautifiedContent);
-        responseMessage += `\nFile content (beautified): ${beautifiedContent}`;
+            if (issues.length > 0) {
                 await fs.promises.writeFile(filePath, originalContent);
                 responseMessage += "\nError happened, explain it to user";
                 responseMessage += "\nFile reverted to original form before changes";
                 responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
-                responseMessage+= `\nFile content before change: ${originalContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
-                responseMessage+= `\nFile content after change: ${updatedContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
+                responseMessage += `\nFile content before change: ${originalContent.split('\n').map((l, i) => `${i}: ${l}`).join('\n')}`;
+                responseMessage += `\nFile content after change: ${updatedContent.split('\n').map((l, i) => `${i}: ${l}`).join('\n')}`;
                 log('responseMessage', responseMessage);
                 res.status(400).send(responseMessage);
                 return;
@@ -192,12 +185,15 @@ if (issues.length > 0) {
             return;
         }
 
-        responseMessage+= `\nFile content: ${updatedContent}`;
+        const beautifiedContent = beautify(updatedContent, {indent_size: 2, space_in_paren: true});
+        await fs.promises.writeFile(filePath, beautifiedContent);
+
+        responseMessage += `\nFile content: ${beautifiedContent}`;
 
         res.type('text/plain').send(responseMessage);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: stringifyError(error) });
+        res.status(500).json({error: stringifyError(error)});
     }
 };
 
