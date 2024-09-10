@@ -5,6 +5,7 @@ const espree = require('espree');
 function checkJavaScriptFile(filePath) {
     return new Promise((resolve, reject) => {
         const fileContent = fs.readFileSync(filePath, {encoding: 'utf8'});
+        const fileLines = fileContent.split('\n');  // Split content into lines
         try {
             espree.parse(fileContent, {
                 ecmaVersion: "latest", // or whichever ECMAScript version you are targeting
