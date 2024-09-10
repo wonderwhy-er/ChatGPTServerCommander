@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { checkJavaScriptFile } = require('../serverModules/checkjs');
+const beautify = require('js-beautify').js;
 const { stringifyError } = require("../serverModules/stringifyError");
 const {log} = require("../serverModules/logger");
 const {createToken} = require("../serverModules/fileAccessHandler");
@@ -152,7 +153,20 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
 
         if (filePath.endsWith('.js')) {
             let issues = await checkJavaScriptFile(filePath);
-            if (issues.length > 0) {
+if (issues.length > 0) {
+        await fs.promises.writeFile(filePath, originalContent);
+        responseMessage += "\nError happened, explain it to user";
+        responseMessage += "\nFile reverted to original form before changes";
+        responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
+        responseMessage += `\nFile content before change: ${originalContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
+        responseMessage += `\nFile content after change: ${updatedContent.split('\n').map((l,i) => `${i}: ${l}`).join('\n')}`;
+        log('responseMessage', responseMessage);
+        res.status(400).send(responseMessage);
+        return;
+    } else {
+        const beautifiedContent = beautify(updatedContent, { indent_size: 2, space_in_paren: true });
+        await fs.promises.writeFile(filePath, beautifiedContent);
+        responseMessage += `\nFile content (beautified): ${beautifiedContent}`;
                 await fs.promises.writeFile(filePath, originalContent);
                 responseMessage += "\nError happened, explain it to user";
                 responseMessage += "\nFile reverted to original form before changes";
