@@ -1,6 +1,7 @@
 module.exports = (log, config) => ((req, res, next) => {
     const bearerHeader = req.headers['authorization'];
-    log('request auth check', req.path, Object.keys(req.headers));
+    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    log('request auth check', fullUrl, Object.keys(req.headers));
     if (typeof bearerHeader !== 'undefined') {
         const bearerToken = bearerHeader.split(' ')[1];
         // Verify the token here (e.g., using a library like jsonwebtoken)
