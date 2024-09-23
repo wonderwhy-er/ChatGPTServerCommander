@@ -78,8 +78,8 @@ const replaceTextInSection = async ( filePath, replacements ) => {
  *                    type: string
  *                    description: Error message explaining the reason for failure
  *   post:
- *     summary: Modify a file using merge conflict-style blocks
- *     description: Accepts a file path and a merge conflict text block, processes modifications, and returns the updated file content
+ *     summary: Modify a file using search and replace command
+ *     description: Accepts a file path and a search and replace strings
  *     operationId: replaceTextInSection
  *     requestBody:
  *       required: true
@@ -91,18 +91,15 @@ const replaceTextInSection = async ( filePath, replacements ) => {
  *               filePath:
  *                 type: string
  *                 description: Path to the file to be edited
- *               replacements:
- *                 type: array
- *                 description: Array of text replacement
- *                 items:
- *                   type: object
- *                   properties:
- *                     originalText:
- *                       type: string
- *                       description: Text to be replaced
- *                     replacementText:
- *                       type: string
- *                       description: Text to replace with
+ *               replacement:
+ *                 type: object
+ *                 properties:
+ *                   originalText:
+ *                     type: string
+ *                     description: Text to be replaced
+ *                   replacementText:
+ *                     type: string
+ *                     description: Text to replace with
  *     responses:
  *       200:
  *         description: File modification was successful
@@ -156,7 +153,7 @@ const readEditTextFileHandler = ( getURL ) => async ( req, res ) => {
         throw new Error( 'mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again' )
       }
     } else {
-      replacements = body.replacements || [];
+      replacements = body.replacements || (body.replacement && [body.replacement]) || [];
     }
 
     replaceResult = await replaceTextInSection( filePath, replacements );

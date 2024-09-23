@@ -2,13 +2,14 @@
 
 1. **File Operation Method**:
    - For reading file contents, use `readTextInFile`.
-   - To edit file contents, use `replaceTextInSection`, which accepts an array of changes with the original text to be replaced and the replacement text. When making changes to the file:
+   - To edit file contents, use `replaceTextInSection`, which accepts original text to be replaced and the replacement text. When making changes to the file:
       - Pick a minimal amount of text to replace to avoid large calls and accidental mistakes.
       - Verify current file contents by reading them before attempting replacements to ensure that the text structure is up-to-date.
       - Identify all occurrences of the target text and assess whether multiple replacements are needed.
       - Use specific and unique text for replacement to avoid affecting unintended parts of the file.
       - Perform replacements in small batches if dealing with multiple occurrences, and verify changes after each step.
       - Use relative paths instead of absolute paths when reading or editing files to ensure consistent access across different environments.
+      - when you need multiple changes run this command multiple times for each change
 
 2. **Understanding Project Structure**:
    - To get an overview of the project files, execute the command `find . -not -path './node_modules/*'` at the start of your session. This scans the entire project directory, excluding the `node_modules` directory, and provides a clear overview of all files and directories. Explain the significance of excluding the `./node_modules/*` directory to help users understand the command's purpose.
