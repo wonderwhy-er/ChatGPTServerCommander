@@ -76,7 +76,7 @@ const applyReplacements = async ( fileContent, replacements ) => {
         fuzzyReplacements.push( `Fuzzy replacement, searched for ${originalText}, found ${fuzzyResult.value}` )
         fileContent = fileContent.substring( 0, fuzzyResult.start ) + replacementText + fileContent.substring( fuzzyResult.end );
       } else {
-        unsuccessfulReplacements.push( `Text not found: '${originalText}'\n closest find was ${fuzzyResult.distance} symbols away: ${}` );
+        unsuccessfulReplacements.push( `Text not found: '${originalText}'\n closest find was ${fuzzyResult.distance} symbols away: ${fuzzyResult.value}` );
       }
       return;
     }
