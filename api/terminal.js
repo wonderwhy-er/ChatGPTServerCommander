@@ -2,11 +2,16 @@ const { spawn } = require('child_process');
 
 // Create a persistent shell
 let shell;
+let output = '';
 try {
     shell = spawn('zsh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
     if (shell.stdin.writable) {
         shell.stdin.write('source ~/.zshrc\n');
     }
+
+    shell.stdout.on('data', (data) => {
+        output += data.toString(); // Append to buffer
+    });
 
     shell.on('error', (err) => {
         console.error('Failed to start zsh:', err);
