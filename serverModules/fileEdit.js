@@ -42,6 +42,9 @@ const applyReplacements = async ( fileContent, replacements ) => {
     originalText,
     replacementText
   } ) => {
+    if(!originalText) {
+      originalText = "";
+    }
     // Initialize occurrences array
     let occurrences = [];
     let index = fileContent.indexOf( originalText );
