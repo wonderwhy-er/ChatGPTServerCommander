@@ -73,13 +73,10 @@ const applyReplacements = async ( fileContent, replacements ) => {
     } else if ( startIndex < 0 ) {
       const fuzzyResult = recursiveFuzzyIndexOf( fileContent, originalText );
       if ( fuzzyResult.distance / originalText.length < 0.3 ) {
-        const adjusted = expandToFullLines( fileContent, fuzzyResult.start, fuzzyResult.end );
-        fuzzyResult.start = adjusted.startIndex;
-        fuzzyResult.end = adjusted.endIndex;
         fuzzyReplacements.push( `Fuzzy replacement, searched for ${originalText}, found ${fuzzyResult.value}` )
         fileContent = fileContent.substring( 0, fuzzyResult.start ) + replacementText + fileContent.substring( fuzzyResult.end );
       } else {
-        unsuccessfulReplacements.push( `Text not found: '${originalText}'` );
+        unsuccessfulReplacements.push( `Text not found: '${originalText}'\n closest find was ${fuzzyResult.distance} symbols away: ${}` );
       }
       return;
     }
