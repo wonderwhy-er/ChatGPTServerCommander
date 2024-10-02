@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 
 // Create a persistent shell
 let shell;
-let output = '';
+let allOutput = '';
 try {
     shell = spawn('zsh', [], { stdio: ['pipe', 'pipe', 'pipe'] });
     if (shell.stdin.writable) {
@@ -10,7 +10,7 @@ try {
     }
 
     shell.stdout.on('data', (data) => {
-        output += data.toString(); // Append to buffer
+        allOutput += data.toString(); // Append to buffer
     });
 
     shell.on('error', (err) => {
