@@ -138,9 +138,12 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
     try {
 
         const currentDir = await getCurrentDirectory();
+        console.log('read file', currentDir, filePath);
         if (!filePath.startsWith(currentDir)) {
             filePath = currentDir + '/' + filePath;
         }
+
+
 
         let replaceResult;
 
