@@ -52,7 +52,7 @@ const applyReplacements = async ( fileContent, replacements ) => {
     // Loop to find all occurrences of the originalText
     while ( index !== -1 ) {
       occurrences.push( index );
-      index = fileContent.indexOf( originalText, index + originalText.length );
+      index = fileContent.indexOf( originalText, index + Math.max(originalText.length, 1) );
     }
     let startIndex = fileContent.indexOf( originalText );
     let endIndex = startIndex + originalText.length;
