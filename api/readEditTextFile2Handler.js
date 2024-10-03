@@ -135,15 +135,15 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         filePath = req.body.filePath; // Get the file path from request body
         body = req.body; // Use the full request body for POST requests
     }
-
-    const currentDir = await getCurrentDirectory();
-    if (!filePath.startsWith(currentDir)) {
-        filePath = currentDir + '/' + filePath;
-    }
-
-    let replaceResult;
-
     try {
+
+        const currentDir = await getCurrentDirectory();
+        if (!filePath.startsWith(currentDir)) {
+            filePath = currentDir + '/' + filePath;
+        }
+
+        let replaceResult;
+
 
         let replacements;
         if (body.mergeText) {
