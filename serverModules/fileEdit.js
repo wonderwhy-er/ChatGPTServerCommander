@@ -50,9 +50,10 @@ const applyReplacements = async ( fileContent, replacements ) => {
     let index = fileContent.indexOf( originalText );
 
     // Loop to find all occurrences of the originalText
-    while ( index !== -1 ) {
+    while ( index !== -1 && index < fileContent.length ) {
       occurrences.push( index );
-      index = fileContent.indexOf( originalText, index + Math.max(originalText.length, 1) );
+      const newIndex = fileContent.indexOf( originalText, index);
+      index =  newIndex === -1 ? -1 : Math.max(index + 1, newIndex);
     }
     let startIndex = fileContent.indexOf( originalText );
     let endIndex = startIndex + originalText.length;
