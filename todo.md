@@ -45,3 +45,4 @@ for css / js
   return multiple occurances and nearby lines, and lines so AI does not need to do additional call to figure out which one to change
 
 - [] multiple edits if one fails otehr succeed it thinks other succeeded, return what failed and reverted file, do not tell about success
+- [] 

@@ -1,48 +1,48 @@
-const fs = require('fs');
+const fs = require( 'fs' );
 const {
     checkJavaScriptFile
-} = require('../serverModules/checkjs');
-const beautify = require('js-beautify').js;
+} = require( '../serverModules/checkjs' );
+const beautify = require( 'js-beautify' ).js;
 const {
     stringifyError
-} = require("../serverModules/stringifyError");
+} = require( "../serverModules/stringifyError" );
 const {
     log
-} = require("../serverModules/logger");
+} = require( "../serverModules/logger" );
 const {
     createToken
-} = require("../serverModules/fileAccessHandler");
+} = require( "../serverModules/fileAccessHandler" );
 const {
     getCurrentDirectory
-} = require("./terminal");
+} = require( "./terminal" );
 const {
     mergeText,
     parseConflicts
-} = require('../serverModules/fileEdit');
+} = require( '../serverModules/fileEdit' );
 const path = require('node:path');
 
-const replaceTextInSection = async (filePath, replacements) => {
+const replaceTextInSection = async ( filePath, replacements ) => {
     let fileHandle;
     let fileContent = '';
 
     // Check if the file exists only when replacements are empty
-    if ((!replacements || replacements.length === 0) && !fs.existsSync(filePath)) {
-        throw new Error('File does not exist, if you want to create it ask for initial content and try again.'); // File does not exist and no replacements specified, so do nothing
+    if ( ( !replacements || replacements.length === 0 ) && !fs.existsSync( filePath ) ) {
+        throw new Error( 'File does not exist, if you want to create it ask for initial content and try again.' ); // File does not exist and no replacements specified, so do nothing
     }
 
     try {
-        fileHandle = await fs.promises.open(filePath, 'a+'); // Open file, 'a+' flag still creates the file if it doesn't exist
-        fileContent = await fileHandle.readFile('utf8');
-    } catch (err) {
-        log('Error reading or creating file:', err);
+        fileHandle = await fs.promises.open( filePath, 'a+' ); // Open file, 'a+' flag still creates the file if it doesn't exist
+        fileContent = await fileHandle.readFile( 'utf8' );
+    } catch ( err ) {
+        log( 'Error reading or creating file:', err );
     } finally {
-        if (fileHandle !== undefined) await fileHandle.close(); // Close the file handle regardless of success or error
+        if ( fileHandle !== undefined ) await fileHandle.close(); // Close the file handle regardless of success or error
     }
 
 
-    const result = await mergeText(fileContent, replacements);
+    const result = await mergeText( fileContent, replacements );
 
-    await fs.promises.writeFile(filePath, result.updatedContent);
+    await fs.promises.writeFile( filePath, result.updatedContent );
 
     return result;
 };
@@ -78,7 +78,7 @@ const replaceTextInSection = async (filePath, replacements) => {
  *                    type: string
  *                    description: Error message explaining the reason for failure
  *   post:
- *     summary: Modify a file using search and replace command
+ *     summary: Modify a file using search and replace command list
  *     description: Accepts a file path and a search and replace strings
  *     operationId: replaceTextInSection
  *     requestBody:
@@ -91,15 +91,18 @@ const replaceTextInSection = async (filePath, replacements) => {
  *               filePath:
  *                 type: string
  *                 description: Path to the file to be edited
- *               replacement:
- *                 type: object
- *                 properties:
- *                   originalText:
- *                     type: string
- *                     description: Text to be replaced
- *                   replacementText:
- *                     type: string
- *                     description: Text to replace with
+ *               replacements:
+ *                 type: array
+ *                 description: Array of text replacement
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     originalText:
+ *                       type: string
+ *                       description: Text to be replaced
+ *                     replacementText:
+ *                       type: string
+ *                       description: Text to replace with
  *     responses:
  *       200:
  *         description: File modification was successful
@@ -122,79 +125,77 @@ const replaceTextInSection = async (filePath, replacements) => {
  *                   type: string
  *                   description: Details of the error along with file current content and access url
  */
-const readEditTextFileHandler = (getURL) => async (req, res) => {
+const readEditTextFileHandler = ( getURL ) => async ( req, res ) => {
     let filePath;
     let body = {}; // Initialize with an empty object for safety
 
-    if (req.method === 'GET') {
+    if ( req.method === 'GET' ) {
         filePath = req.query.filePath; // Get the file path from query parameters
         body = {
             filePath
         }; // Mimic the structure expected by replaceTextInSection
-    } else if (req.method === 'POST') {
+    } else if ( req.method === 'POST' ) {
         filePath = req.body.filePath; // Get the file path from request body
         body = req.body; // Use the full request body for POST requests
+    }
+
+    const currentDir = await getCurrentDirectory();
+    if ( !filePath.startsWith( currentDir ) ) {
+        filePath = currentDir + '/' + filePath;
     }
 
     let replaceResult;
 
     try {
 
-        const currentDir = await getCurrentDirectory();
-        console.log('read file', currentDir, filePath);
-        if (!filePath.startsWith(currentDir)) {
-            filePath = currentDir + '/' + filePath;
-        }
-
-
         let replacements;
-        if (body.mergeText) {
-            replacements = parseConflicts(body.mergeText);
+        if ( body.mergeText ) {
+            replacements = parseConflicts( body.mergeText );
 
-            if (replacements.length === 0 && body.mergeText.length > 0) {
-                throw new Error('mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again')
+            if ( replacements.length === 0 && body.mergeText.length > 0 ) {
+                throw new Error( 'mergeText was not empty, but no conflict blocks were found, they are checked using regex like this /<<<<<<< HEAD[\\s\\S]*?>>>>>>> [\\w-]+/g Check what you send and try again' )
             }
         } else {
             replacements = body.replacements || (body.replacement && [body.replacement]) || [];
         }
 
-        replaceResult = await replaceTextInSection(filePath, replacements);
+        replaceResult = await replaceTextInSection( filePath, replacements );
 
-        const url = createToken(getURL, filePath);
+        const url = createToken( getURL, filePath );
         let responseMessage = `
         File url: ${url}
         Changed diff url: ${createToken(getURL, filePath)}?diff=1`;
 
-        if (replaceResult.fuzzyReplacements.length > 0) {
+        if ( replaceResult.fuzzyReplacements.length > 0 ) {
             responseMessage += `Fuzzy replacements: ${replaceResult.fuzzyReplacements.join('\n')}`
         }
 
-        if (filePath.endsWith('.js')) {
+        if ( filePath.endsWith( '.js' ) ) {
             debugger;
-            let issues = await checkJavaScriptFile(filePath);
-            if (issues.length > 0) {
-                await fs.promises.writeFile(filePath, replaceResult.originalContent);
+            let issues = await checkJavaScriptFile( filePath );
+            if ( issues.length > 0 ) {
+                await fs.promises.writeFile( filePath, replaceResult.originalContent );
                 responseMessage += "\nError happened, explain it to user";
                 responseMessage += "\nFile reverted to original form before changes";
-                responseMessage += '\nIssues found in the file: \n' + JSON.stringify(issues);
+                responseMessage += '\nIssues found in the file: \n' + JSON.stringify( issues );
                 responseMessage += `\nFile content before change: ${replaceResult.originalContent.split('\n').map((l, i) => `${i}: ${l}`).join('\n')}`;
                 responseMessage += `\nFile content after change: ${replaceResult.updatedContent.split('\n').map((l, i) => `${i}: ${l}`).join('\n')}`;
-                log('responseMessage', responseMessage);
-                res.status(400).send(responseMessage);
+                log( 'responseMessage', responseMessage );
+                res.status( 400 ).send( responseMessage );
                 return;
             }
         }
 
-        if (replaceResult.unsuccessfulReplacements.length > 0) {
-            await fs.promises.writeFile(filePath, replaceResult.originalContent);
-            let unsuccessfulMessages = replaceResult.unsuccessfulReplacements.join("; ");
+        if ( replaceResult.unsuccessfulReplacements.length > 0 ) {
+            await fs.promises.writeFile( filePath, replaceResult.originalContent );
+            let unsuccessfulMessages = replaceResult.unsuccessfulReplacements.join( "; " );
             responseMessage += "\nError happened, explain it to user";
             responseMessage += `\nUnsuccessful replacements due to missing texts: ${unsuccessfulMessages}`;
             responseMessage += `\nFile reverted to original version before changes`;
-            if (replacements.length > replaceResult.unsuccessfulReplacements.length) {
+            if ( replacements.length > replaceResult.unsuccessfulReplacements.length ) {
                 responseMessage += `\n${replacements.length - replaceResult.unsuccessfulReplacements.length} replacements were successful do them first, then try fixing failing ones in separate request`;
             }
-            res.status(400).send(responseMessage);
+            res.status( 400 ).send( responseMessage );
             return;
         }
 
@@ -208,9 +209,9 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
         } else {
             responseMessage += `\nFile content: ${replaceResult.updatedContent || replaceResult.originalContent}`;
         }
-        res.type('text/plain').send(responseMessage);
-    } catch (error) {
-        console.error(error);
+        res.type( 'text/plain' ).send( responseMessage );
+    } catch ( error ) {
+        console.error( error );
         const logData = {
             error: error.message,
             request: req.body || req.query,
@@ -218,24 +219,12 @@ const readEditTextFileHandler = (getURL) => async (req, res) => {
             fileContentBefore: replaceResult?.originalContent || 'N/A',
             fileContentAfter: replaceResult?.updatedContent || 'N/A'
         };
-        logHTTP(logData);
-        res.status(500).json({
-            error: stringifyError(error)
-        });
+        // TODO no such dir fix
+        // fs.appendFileSync( path.join( __dirname, '../logs/http_error_responses.log' ), JSON.stringify( logData, null, 2 ) + '\n', 'utf8' );
+        res.status( 500 ).json( {
+            error: stringifyError( error )
+        } );
     }
 };
-
-function logHTTP(logData) {
-    const logDir = path.join(__dirname, '../logs');
-    const logFile = path.join(logDir, 'http_error_responses.log');
-
-// Check if the directory exists, if not, create it
-    if (!fs.existsSync(logDir)) {
-        fs.mkdirSync(logDir, {recursive: true});
-    }
-
-// Now append to the log file
-    fs.appendFileSync(logFile, JSON.stringify(logData, null, 2) + '\n', 'utf8');
-}
 
 module.exports = readEditTextFileHandler;
