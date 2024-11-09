@@ -2,6 +2,9 @@
 <img src="https://raw.githubusercontent.com/wonderwhy-er/ChatGPTServerCommander/main/logo4.png" width="350pxp" height="350px"/>
 This project is a server that exposes terminal commands and file editing functionality as an API for ChatGPT Actions. In essence, it allows you to control any machine where you install this with ChatGPT. Install, run, and edit anything, even itself.
 
+## Video Demo
+[![Watch here](https://img.youtube.com/vi/8wMOferdWeA/maxresdefault.jpg)]([https://youtu.be/VIDEO_ID](https://youtu.be/8wMOferdWeA?t=1333))
+
 ## Features
 
 - Execute server commands through a REST API that is compatible with Custom ChatGPT actions
